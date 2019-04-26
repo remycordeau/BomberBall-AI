@@ -12,3 +12,7 @@ build/**
 **/assetsconfigs/
 **assets/
 
+
+\.idea/
+
+out/

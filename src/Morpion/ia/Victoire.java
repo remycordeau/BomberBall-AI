@@ -1,3 +1,4 @@
+package Morpion.ia;
 
 public class Victoire implements Situation {
 	private Joueur vainqueur;

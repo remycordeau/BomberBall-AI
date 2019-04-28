@@ -1,3 +1,5 @@
+package Morpion.ia;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -52,7 +54,7 @@ public class Application extends JFrame implements Observer {
 			}
 		}
 		Joueur joueurCourant = partie.getJoueurCourant();
-		bandeau.setText("Joueur courant : " + joueurCourant.getNom() + " (J" + joueurCourant.getID() + ")");
+		bandeau.setText("Morpion.ia.Joueur courant : " + joueurCourant.getNom() + " (J" + joueurCourant.getID() + ")");
 		repaint();
 	}
 	
@@ -65,7 +67,7 @@ public class Application extends JFrame implements Observer {
 		}
 
 		if (situation instanceof Egalite) {
-			bandeau.setText("Egalite !");	
+			bandeau.setText("Morpion.ia.Egalite !");
 		}
 		else {
 			Joueur vainqueur = ((Victoire) situation).getVainqueur();
@@ -80,7 +82,7 @@ public class Application extends JFrame implements Observer {
 		rafraichir();
 		
 		Situation situation = partie.getSituationCourante();
-		// Egalite ou Victoire
+		// Morpion.ia.Egalite ou Morpion.ia.Victoire
 		if (!(situation instanceof EnCours)) {
 			finDePartie(situation);
 		}

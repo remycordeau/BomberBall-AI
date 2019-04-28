@@ -1,3 +1,4 @@
+package Morpion.ia;
 
 public enum Symbole {
 	X("X"),

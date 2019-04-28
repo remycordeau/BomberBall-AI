@@ -1,3 +1,4 @@
+package Morpion.ia;
 
 public abstract class Joueur {
 	private String nom;

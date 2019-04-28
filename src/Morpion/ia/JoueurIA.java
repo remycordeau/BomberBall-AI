@@ -1,4 +1,4 @@
-
+package Morpion.ia;
 
 public abstract class JoueurIA extends Joueur {
 

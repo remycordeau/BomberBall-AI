@@ -1,3 +1,4 @@
+package Morpion.ia;
 
 public class DejaOccupeException extends Exception {
 

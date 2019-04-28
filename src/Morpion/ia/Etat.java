@@ -1,3 +1,5 @@
+package Morpion.ia;
+
 import java.util.List;
 
 public class Etat {

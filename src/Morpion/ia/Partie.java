@@ -1,3 +1,5 @@
+package Morpion.ia;
+
 import java.util.Observable;
 
 public class Partie extends Observable {

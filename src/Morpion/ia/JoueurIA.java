@@ -56,5 +56,18 @@ public abstract class JoueurIA extends Joueur {
             System.out.println("##############################");
 		
 	}
-	
+
+
+	public Action choisirAction(Etat etat) throws Exception{
+		try{
+
+			
+
+			return  etat.getPlateau().getCaseLibre(); //TODO remplacer par un vrai truc pas random
+		} catch (Exception e){
+			e.printStackTrace();
+			System.err.println("The IA player had an error while choosing an action and returned a random valid action instead");
+			return  etat.getPlateau().getCaseLibre();
+		}
+	}
 }

@@ -50,22 +50,12 @@ public class ThreadCalculIA extends Thread {
 	     */
 	    @Override
 	    public void run() {
-	        try {
-	        	actionChoisie = ia.choisirAction(etat.clone());
-	        }
-	        catch (Exception ex) {
-	            ex.printStackTrace();
-	        }
-	        finally {
-	           executor.shutdownNow();
-	        }
+		    try {
+			    actionChoisie = ia.choisirAction(etat.clone());
+		    } catch (Exception ex) {
+			    ex.printStackTrace();
+		    } finally {
+			    executor.shutdownNow();
+		    }
 	    }
-
-
-	
-	
-	
-	
-	
-	
 }

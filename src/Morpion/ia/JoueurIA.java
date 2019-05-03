@@ -61,7 +61,7 @@ public abstract class JoueurIA extends Joueur {
 	public Action choisirAction(Etat etat) throws Exception{
 		try{
 
-			
+
 
 			return  etat.getPlateau().getCaseLibre(); //TODO remplacer par un vrai truc pas random
 		} catch (Exception e){

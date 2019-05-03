@@ -15,7 +15,7 @@
 "endTurn button"		:	"Fin de tour [%s]"
 
 #SettingsMenuUI
-"Action"		:	"Action"
+"Morpion.ia.Action"		:	"Morpion.ia.Action"
 "inputs"		:	"contrôles"
 "Language"		:	"Langage"
 "general"		:	"général"

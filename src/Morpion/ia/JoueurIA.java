@@ -57,10 +57,11 @@ public abstract class JoueurIA extends Joueur {
 		
 	}
 
-
+	/*
 	public Action choisirAction(Etat etat) throws Exception{
 		try{
-			
+			etat.actionsPossibles();
+
 
 
 			return  etat.getPlateau().getCaseLibre(); //TODO remplacer par un vrai truc pas random
@@ -70,4 +71,5 @@ public abstract class JoueurIA extends Joueur {
 			return  etat.getPlateau().getCaseLibre();
 		}
 	}
+	*/
 }

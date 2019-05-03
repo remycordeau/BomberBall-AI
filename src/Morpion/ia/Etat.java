@@ -53,6 +53,8 @@ public class Etat {
 	 * @param id l'identifiant du nouveau joueur courant
 	 */
 	public void setIdJoueurCourant(int id) {
+		System.out.println("there are currently "+partie.getNombreJoueurs()+" players");
+		System.out.println("the requested new player is "+id);
 		this.idJoueurCourant = id % partie.getNombreJoueurs();
 	}
 	

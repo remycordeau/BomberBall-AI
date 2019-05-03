@@ -231,12 +231,15 @@ public class Partie extends Observable {
 				System.out.println(etatCourant.getPlateau());
 				if (getJoueurCourant() instanceof JoueurIA) {
 					a = choixIA((JoueurIA) getJoueurCourant());
+					System.out.println("got action from IA");
 				}
 				else {
 					a = getJoueurCourant().choisirAction(etatCourant);
+					System.out.println("got action from current player");
 				}
 			} catch (Exception e) {
 				a = etatCourant.getPlateau().getCaseLibre();
+				System.out.println("got action from random");
 			}
 			} while(!etatCourant.estPossible(a));
 			System.out.println("Morpion.ia.Action : " + a);

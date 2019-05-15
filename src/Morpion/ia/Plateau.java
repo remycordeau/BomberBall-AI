@@ -191,7 +191,92 @@ public class Plateau {
 		}
 		return Symbole.VIDE;
 	}
-	
+
+	public int nSymbolesConsecutifs2(int x, int y, int directionX, int directionY, Symbole symbole) {
+
+		if(getCase(x, y) == symbole){
+			int nombreSymboleConsecutif = 0;
+			do{
+				// Si case non vide
+				if (getCase(x, y) == symbole) {
+					nombreSymboleConsecutif++;
+					x += directionX;
+					y += directionY;
+				}else {
+					break;
+				}
+			}while (x >= 0 && y >= 0 && x < taille && y < taille);
+			return nombreSymboleConsecutif;
+		}else{
+			return 0;
+		}
+	}
+
+	public int heuristique(Symbole symbole){
+		int ret=0;
+		int nbcons;
+		int y=0;
+		int x=0;
+
+		// Lignes
+		x=0;
+		y=0;
+		while (y>=0 && y<taille) {
+			while (x >= 0 && x < taille) {
+				nbcons = nSymbolesConsecutifs2(x, y, 1, 0, symbole);
+				if(nbcons>1){
+					ret += nbcons;
+					System.out.println("ligne horizontale longueur : " + (nbcons));
+				}
+				x += nbcons + 1;
+			}
+			y++;
+			x=0;
+		}
+
+		// Colonnes
+		x=0;
+		y=0;
+		while (x>=0 && x<taille) {
+			while (y >= 0 && y < taille) {
+				nbcons = nSymbolesConsecutifs2(x, y, 0, 1, symbole);
+				if(nbcons>1){
+					ret += nbcons;
+					System.out.println("ligne vertivale longueur : " + (nbcons));
+				}
+				y += nbcons + 1;
+			}
+			x++;
+			y=0;
+		}
+
+		// Diagonales
+		x=0;
+		y=0;
+		while (x >= 0 && y >= 0 && y < taille && x < taille) {
+			nbcons = nSymbolesConsecutifs2(x, y, 1, 1, symbole);
+			if(nbcons>1){
+				ret += nbcons;
+				System.out.println("ligne diagonale longueur : " + (nbcons));
+			}
+			y += nbcons + 1;
+			x += nbcons + 1;
+		}
+		x=taille-1;
+		y=taille-1;
+		while (x >= 0 && y >= 0 && y < taille && x < taille) {
+			nbcons = nSymbolesConsecutifs2(x, y, -1, -1, symbole);
+			if(nbcons>1){
+				ret += nbcons;
+				System.out.println("ligne diagonale longueur : " + (nbcons));
+			}
+			y -= nbcons + 1;
+			x -= nbcons + 1;
+		}
+
+		return ret;
+	}
+
 	/**
 	 * Teste s'il y a une diagonale gagnante sur le plateau
 	 *

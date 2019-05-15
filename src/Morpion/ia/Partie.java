@@ -237,6 +237,7 @@ public class Partie extends Observable {
 					a = getJoueurCourant().choisirAction(etatCourant);
 					System.out.println("got action from current player");
 				}
+
 			} catch (Exception e) {
 				a = etatCourant.getPlateau().getCaseLibre();
 				System.out.println("got action from random");
@@ -244,6 +245,8 @@ public class Partie extends Observable {
 			} while(!etatCourant.estPossible(a));
 			System.out.println("Morpion.ia.Action : " + a);
 			etatCourant.jouer(a);
+			System.out.println("quasi heuristique pour "+etatCourant.getPlateau().getCase(0,0)+" : "+etatCourant.getPlateau().heuristique(etatCourant.getPlateau().getCase(0,0)));
+			//System.out.println("symboles identiques case 0,0 d'affilée "+etatCourant.getPlateau().nSymbolesConsecutifs2(0,0,1,0));
 			joueurSuivant();
 			setChanged();
 			notifyObservers();

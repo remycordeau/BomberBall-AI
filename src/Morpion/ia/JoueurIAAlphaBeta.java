@@ -18,8 +18,10 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 
 	public JoueurIAAlphaBeta(String nom) {
 		super(nom);
-		this.Alpha = -1; // initialiser alpha et beta à plus ou moins l'infini
-		this.Beta = 1;
+		//this.Alpha = -1; // initialiser alpha et beta à plus ou moins l'infini
+		this.Alpha = -2147483646;
+		//this.Beta = 1;
+		this.Beta = 2147483646;
 	}
 
 
@@ -32,6 +34,8 @@ public class JoueurIAAlphaBeta extends JoueurIA {
         try {
             for(Morpion.ia.Action action : actionsPossibles){
             	Etat state=etat.clone();
+
+            	//System.out.println("symboles identiques case 0,0 d'affilée "+state.getPlateau().nSymbolesConsecutifs2(0,0,1,0));
             	state.jouer(action);
             	state.setIdJoueurCourant(state.getIdJoueurCourant() +1);
                 currentAlpha=alphaBeta(this.Alpha,this.Beta,state,1);
@@ -54,10 +58,12 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 		if(situation instanceof Victoire){
 			if(((Victoire) situation).getVainqueur().getID() == this.getID()){
 				System.out.println("victoire de l'ia");
-				return 1;
+				//return 1;
+				return 2147483646-levelOfRecursion;
 			} else{
 				System.out.println("victoire du joueur");
-				return -1;
+				//return -1;
+				return -2147483647+levelOfRecursion;
 			}
 		} else if(situation instanceof Egalite){
 			System.out.println("Egalité !");

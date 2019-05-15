@@ -15,6 +15,7 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 	private List<Morpion.ia.Action> actionsPossibles;
 	int joueurCourant;
 
+	private static final int MaxLevelOfRecursion = 10;
 
 	public JoueurIAAlphaBeta(String nom) {
 		super(nom);
@@ -71,6 +72,15 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 		}else if(situation instanceof EnCours){
 			List<Morpion.ia.Action> actions = etat.actionsPossibles();
 			if(etat.getIdJoueurCourant() == this.getID()){ //noeud max
+				//TODO if reached max profondeur to look
+				if(levelOfRecursion>=MaxLevelOfRecursion){
+					int heuristique = etat.getPlateau().heuristique(Symbole.values()[etat.getIdJoueurCourant()]);
+					etat.setIdJoueurCourant(etat.getIdJoueurCourant()+1);
+					int newid = etat.getIdJoueurCourant();
+					heuristique-= etat.getPlateau().heuristique(Symbole.values()[newid]);
+					heuristique+=levelOfRecursion;
+					return heuristique;
+				}
 				for(int i = 0; i < actions.size() && alpha < beta; i++){
 					Etat nouvEtat = etat.clone();
 					nouvEtat.jouer(actions.get(i));
@@ -79,6 +89,15 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 				}
 				return alpha;
 			} else { //noeud min
+				//TODO if reached max profondeur to look
+				if(levelOfRecursion>=MaxLevelOfRecursion){
+					int heuristique = -etat.getPlateau().heuristique(Symbole.values()[etat.getIdJoueurCourant()]);
+					etat.setIdJoueurCourant(etat.getIdJoueurCourant()+1);
+					int newid = etat.getIdJoueurCourant();
+					heuristique+= etat.getPlateau().heuristique(Symbole.values()[newid]);
+					heuristique-=levelOfRecursion;
+					return heuristique;
+				}
 				for(int i = 0; i < actions.size() && alpha < beta; i++){
 					Etat nouvEtat = etat.clone();
 					nouvEtat.jouer(actions.get(i));

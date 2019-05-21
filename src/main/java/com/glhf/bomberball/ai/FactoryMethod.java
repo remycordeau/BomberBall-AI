@@ -37,13 +37,16 @@ public class FactoryMethod {
 				AbstractAI player1=new VanillaAI(configMultiPlayers,player_skin,playerId);
 				cell.addGameObject(player1);
 	    	return player1;
-	    	
+
+			case "AlphaBetaAI":
+				AbstractAI player2=new AlphaBetaAi(configMultiPlayers,player_skin,playerId);
+				cell.addGameObject(player2);
+				return player2;
+
 			default:
 				AbstractAI playerDefault=new RandomAI(configMultiPlayers,player_skin,playerId);
 			    cell.addGameObject(playerDefault);
 			    return playerDefault;
-		
-				
 			}
 		}
 		catch(Exception ex)

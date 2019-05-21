@@ -17,6 +17,8 @@ public class AlphaBetaAi extends AbstractAI {
     private int Beta;
     private List<Action> actionsPossibles;
 
+    private final int verbosity = 10;
+
     public AlphaBetaAi(GameConfig config, String player_skin, int playerId) {
         super(config,player_skin,"RandomAI",playerId);
         //this.Alpha = -1; // initialiser alpha et beta à plus ou moins l'infini
@@ -32,10 +34,20 @@ public class AlphaBetaAi extends AbstractAI {
     public Action choosedAction(GameState gameState) {
         this.joueurCourant = this.getPlayerId();
         actionsPossibles = gameState.getAllPossibleActions();
+        if(verbosity>5){
+            System.out.println();
+            for (Action action: actionsPossibles
+            ) {
+                System.out.print(" | "+actionToString(action)+" | ");
+            }System.out.println();
+        }
         int bestAlpha = this.Alpha;
         int currentAlpha;
         try{
             for(Action action : actionsPossibles){
+                if(verbosity>5){
+                    System.out.println(actionToString(action));
+                }
                 GameState state = gameState.clone();
                 state.apply(action);
                 int numberOfPlayers = state.getPlayers().size();
@@ -91,10 +103,20 @@ public class AlphaBetaAi extends AbstractAI {
             System.out.println("victoire && egalite, something went wrong");
         } else { // partie en cours
             List<Action> actions = state.getAllPossibleActions();
+            if(verbosity>5){
+                System.out.println();
+                for (Action action: actions
+                     ) {
+                    System.out.print(" | "+actionToString(action)+" | ");
+                }System.out.println();
+            }
             if(state.getCurrentPlayerId() == this.getPlayerId()){ // noeud max
                 for(int i = 0; i < actions.size() && alpha < beta; i++){
                     GameState newState = state.clone();
                     Action chosenAction = actions.get(i);
+                    if(verbosity>4){
+                        System.out.println(actionToString(chosenAction));
+                    }
                     newState.apply(chosenAction);
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
                         int numberOfPlayers = state.getPlayers().size();
@@ -109,6 +131,9 @@ public class AlphaBetaAi extends AbstractAI {
                 for(int i = 0; i < actions.size() && alpha < beta; i++){
                     GameState newState = state.clone();
                     Action chosenAction = actions.get(i);
+                    if(verbosity>4){
+                        System.out.println(actionToString(chosenAction));
+                    }
                     newState.apply(chosenAction);
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
                         int numberOfPlayers = state.getPlayers().size();
@@ -122,5 +147,28 @@ public class AlphaBetaAi extends AbstractAI {
             }
         }
         return 0;
+    }
+
+    public String actionToString(Action a){
+        String ret="";
+        switch (a){
+            case ENDTURN:ret="ENDTURN";break;
+            case MOVE_UP:ret="MOVE_UP";break;
+            case DROP_BOMB:ret="DROP_BOMB";break;
+            case MODE_BOMB:ret="MODE_BOMB";break;
+            case MODE_MOVE:ret="MODE_MOVE";break;
+            case MOVE_DOWN:ret="MOVE_DOWN";break;
+            case MOVE_LEFT:ret="MOVE_LEFT";break;
+            case MOVE_RIGHT:ret="MOVE_RIGHT";break;
+            case NEXT_SCREEN:ret="NEXT_SCREEN";break;
+            case DROP_BOMB_UP:ret="DROP_BOMB_UP";break;
+            case MENU_GO_BACK:ret="MENU_GO_BACK";break;
+            case DELETE_OBJECT:ret="DELETE_OBJECT";break;
+            case DROP_BOMB_DOWN:ret="DROP_BOMB_DOWN";break;
+            case DROP_BOMB_LEFT:ret="DROP_BOMB_LEFT";break;
+            case DROP_BOMB_RIGHT:ret="DROP_BOMB_RIGHT";break;
+            case DROP_SELECTED_OBJECT:ret="DROP_SELECTED_OBJECT";break;
+        }
+        return ret;
     }
 }

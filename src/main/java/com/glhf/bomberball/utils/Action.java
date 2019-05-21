@@ -18,3 +18,4 @@ public enum Action {
     NEXT_SCREEN,
     DELETE_OBJECT
 }
+

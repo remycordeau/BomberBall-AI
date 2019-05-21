@@ -85,7 +85,7 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 					Etat nouvEtat = etat.clone();
 					nouvEtat.jouer(actions.get(i));
 					nouvEtat.setIdJoueurCourant(nouvEtat.getIdJoueurCourant() + 1);
-					alpha = max(alpha,alphaBeta(alpha,beta,nouvEtat,levelOfRecursion++));
+					alpha = max(alpha,alphaBeta(alpha, beta,nouvEtat,levelOfRecursion++));
 				}
 				return alpha;
 			} else { //noeud min

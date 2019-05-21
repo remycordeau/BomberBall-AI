@@ -24,7 +24,7 @@ public class RandomAI extends AbstractAI{
 		List<Action> possibleActions= gameState.getAllPossibleActions();
 		int actionIndex=rand.nextInt(possibleActions.size());
 		System.out.println(possibleActions.get(actionIndex));
-		return  possibleActions.get(actionIndex);
+		return possibleActions.get(actionIndex);
 	}
 
 	

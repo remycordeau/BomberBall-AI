@@ -184,7 +184,12 @@ public class GameMultiScreen extends GameScreen {
 
             // Backup to a random choice if needed
             while (action == null || !isPossibleAction(action)) {
-                System.out.println("Choix de l'action au hasard");
+                System.out.print("Choix de l'action au hasard");
+                if(action == null){
+                    System.out.println(" Car action == null");
+                }else{
+                    System.out.println(" Car l'action est pas possible");
+                }
                 Random rand = new Random();
                 List<Action> possibleActions= gameState.getAllPossibleActions();
                 int actionIndex=rand.nextInt(possibleActions.size());

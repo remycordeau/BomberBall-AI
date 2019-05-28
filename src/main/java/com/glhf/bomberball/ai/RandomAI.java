@@ -1,6 +1,5 @@
 package com.glhf.bomberball.ai;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -14,20 +13,19 @@ public class RandomAI extends AbstractAI{
 
 
 	public RandomAI(GameConfig config,String player_skin,int playerId) {
-		super(config,player_skin,"RandomAI",playerId);
-		// TODO Auto-generated constructor stub
+		super(config,"mort","RandomAI",playerId);
 	}
 
 	@Override
 	public Action choosedAction(GameState gameState) {
 		Random rand = new Random();
-		List<Action> possibleActions= gameState.getAllPossibleActions();
-		int actionIndex=rand.nextInt(possibleActions.size());
-		System.out.println(possibleActions.get(actionIndex));
-		return possibleActions.get(actionIndex);
-	}
 
-	
+		List<Action> possibleActions= gameState.getAllPossibleActions();
+
+		int actionIndex=rand.nextInt(possibleActions.size());
+		return  possibleActions.get(actionIndex);
+//		return  Action.ENDTURN;
+	}
 
 
 }

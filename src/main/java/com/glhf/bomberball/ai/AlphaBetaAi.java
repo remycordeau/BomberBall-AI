@@ -51,7 +51,7 @@ public class AlphaBetaAi extends AbstractAI {
                 GameState state = gameState.clone();
                 state.apply(action);
                 int numberOfPlayers = state.getPlayers().size();
-                state.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
+                //state.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
                 currentAlpha = alphaBeta(this.Alpha, this.Beta,state,1);
                 if(currentAlpha>bestAlpha){
                     bestAlpha = currentAlpha;
@@ -89,11 +89,11 @@ public class AlphaBetaAi extends AbstractAI {
             egalite = true;
         }
         if(victoire){
-            if(winner.getCurrentPlayerId() == this.getPlayerId()){
+            if(winner.getPlayerId() == this.getPlayerId()){
                 System.out.println("ia "+ this.getPlayerId()+" a gagné");
                 return 2147483646 - leveOfRecursion;
             } else  {
-                System.out.println("ia "+ winner.getCurrentPlayerId()+" a gagné");
+                System.out.println("ia "+ winner.getPlayerId()+" a gagné");
                 return -2147483646 + leveOfRecursion;
             }
         } else if(egalite){
@@ -120,7 +120,7 @@ public class AlphaBetaAi extends AbstractAI {
                     newState.apply(chosenAction);
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
                         int numberOfPlayers = state.getPlayers().size();
-                        newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
+                        //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
                         alpha = max(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++));
                     } else {
                         alpha = alphaBeta(alpha, beta,newState,leveOfRecursion++);
@@ -137,7 +137,7 @@ public class AlphaBetaAi extends AbstractAI {
                     newState.apply(chosenAction);
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
                         int numberOfPlayers = state.getPlayers().size();
-                        newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1) % numberOfPlayers);
+                        //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1) % numberOfPlayers);
                         beta = min(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++));
                     }else{
                         beta = alphaBeta(alpha, beta,newState,leveOfRecursion++);

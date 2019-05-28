@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.glhf.bomberball.Bomberball;
 import com.glhf.bomberball.Graphics;
 import com.glhf.bomberball.Translator;
+import com.glhf.bomberball.ai.AbstractAI;
 import com.glhf.bomberball.audio.AudioButton;
 import com.glhf.bomberball.gameobject.Player;
 import com.glhf.bomberball.maze.Maze;
@@ -19,9 +20,12 @@ import com.glhf.bomberball.utils.ScreenChangeListener;
 
 import static com.glhf.bomberball.utils.Constants.PATH_GRAPHICS;
 
+import java.util.ArrayList;
+
 
 public class VictoryMenuUI extends MenuUI {
     private int previous_maze_id;
+    private boolean repeat;
 
     public VictoryMenuUI(Player player, int maze_id) {
         this.previous_maze_id = maze_id;
@@ -36,7 +40,13 @@ public class VictoryMenuUI extends MenuUI {
             TextureRegionDrawable texture = new TextureRegionDrawable(new TextureRegion(new Texture(PATH_GRAPHICS+"background/EqualityMenu.png")));
             this.setBackground(texture);
         } else {
-            this.add(new Label(Translator.translate("VICTORY!"), Graphics.GUI.getSkin(), "default")).row();
+            this.add(new Label(Translator.translate("VICTORY!")+"\n", Graphics.GUI.getSkin(), "default")).row();
+            if (player instanceof AbstractAI) {
+                this.add(new Label(((AbstractAI) player).getPlayerName()+" (ID "+player.getPlayerId()+")", Graphics.GUI.getSkin(), "default")).row();
+            }
+            else {
+                this.add(new Label(Translator.translate("Human player")+" (ID "+player.getPlayerId()+")", Graphics.GUI.getSkin(), "default")).row();
+            }
             AnimationActor player_animation = new AnimationActor(player.getAnimation());
             player_animation.mustMove(true);
             this.add(player_animation).grow().row();
@@ -45,6 +55,11 @@ public class VictoryMenuUI extends MenuUI {
         }
 
         addButtons();
+    }
+
+    public VictoryMenuUI(Player player, int maze_id, boolean repeat) {
+        this(player,maze_id);
+        this.repeat=repeat;
     }
 
     private void addButtons() {
@@ -56,13 +71,19 @@ public class VictoryMenuUI extends MenuUI {
         b = new AudioButton(Translator.translate("Replay"), skin);
         b.addListener(new ChangeListener() {
             @Override
+
             public void changed(ChangeEvent event, Actor actor) {
-            	Bomberball.changeScreen(new GameMultiScreen(Maze.importMazeMulti("maze_" + previous_maze_id), previous_maze_id));
+                if (!repeat) {
+                    Bomberball.changeScreen(new GameMultiScreen(Maze.importMazeMulti("maze_" + previous_maze_id), previous_maze_id));
+                }else {
+                    Bomberball.reinitialize();
+
+                }
             }
         });
         this.add(b).growX().space(spacing).row();
 
-        
+
 //        b = new AudioButton(Translator.translate("Multiplayer menu"), skin);
 //        b.addListener(new ScreenChangeListener(MultiMenuScreen.class));
 //        this.add(b).growX().space(spacing).row();

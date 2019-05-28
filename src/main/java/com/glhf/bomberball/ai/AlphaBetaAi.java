@@ -17,7 +17,7 @@ public class AlphaBetaAi extends AbstractAI {
     private int Beta;
     private List<Action> actionsPossibles;
 
-    private final int verbosity = 10;
+    private final int verbosity = 0;
 
     public AlphaBetaAi(GameConfig config, String player_skin, int playerId) {
         super(config,player_skin,"RandomAI",playerId);
@@ -52,7 +52,7 @@ public class AlphaBetaAi extends AbstractAI {
                 state.apply(action);
                 int numberOfPlayers = state.getPlayers().size();
                 //state.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
-                currentAlpha = alphaBeta(this.Alpha, this.Beta,state,1);
+                currentAlpha = alphaBeta(this.Alpha, this.Beta,state,1,1);
                 if(currentAlpha>bestAlpha){
                     bestAlpha = currentAlpha;
                     this.setMemorizedAction(action);
@@ -64,7 +64,7 @@ public class AlphaBetaAi extends AbstractAI {
         return this.getMemorizedAction();
     }
 
-    private int alphaBeta(int alpha, int beta, GameState state, int leveOfRecursion) {
+    private int alphaBeta(int alpha, int beta, GameState state, int leveOfRecursion, int maxRecursion) {
         //on définit la situation actuelle
 
         boolean victoire = true;
@@ -90,10 +90,10 @@ public class AlphaBetaAi extends AbstractAI {
         }
         if(victoire){
             if(winner.getPlayerId() == this.getPlayerId()){
-                System.out.println("ia "+ this.getPlayerId()+" a gagné");
+                //System.out.println("ia "+ this.getPlayerId()+" a gagné");
                 return 2147483646 - leveOfRecursion;
             } else  {
-                System.out.println("ia "+ winner.getPlayerId()+" a gagné");
+                //System.out.println("ia "+ winner.getPlayerId()+" a gagné");
                 return -2147483646 + leveOfRecursion;
             }
         } else if(egalite){
@@ -101,7 +101,11 @@ public class AlphaBetaAi extends AbstractAI {
             return 0;
         } else if(victoire && egalite){
             System.out.println("victoire && egalite, something went wrong");
-        } else { // partie en cours
+
+        }else if(leveOfRecursion > maxRecursion){
+            // TODO choisir quoi retourner
+            return 0;
+        }else { // partie en cours
             List<Action> actions = state.getAllPossibleActions();
             if(verbosity>5){
                 System.out.println();
@@ -121,9 +125,9 @@ public class AlphaBetaAi extends AbstractAI {
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
                         int numberOfPlayers = state.getPlayers().size();
                         //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
-                        alpha = max(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++));
+                        alpha = max(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion));
                     } else {
-                        alpha = alphaBeta(alpha, beta,newState,leveOfRecursion++);
+                        alpha = alphaBeta(alpha, beta,newState,leveOfRecursion,maxRecursion);
                     }
                 }
                 return alpha;
@@ -138,9 +142,9 @@ public class AlphaBetaAi extends AbstractAI {
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
                         int numberOfPlayers = state.getPlayers().size();
                         //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1) % numberOfPlayers);
-                        beta = min(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++));
+                        beta = min(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion));
                     }else{
-                        beta = alphaBeta(alpha, beta,newState,leveOfRecursion++);
+                        beta = alphaBeta(alpha, beta,newState,leveOfRecursion,maxRecursion);
                     }
                 }
                 return beta;

@@ -16,8 +16,10 @@ public class AlphaBetaAi extends AbstractAI {
     private int Alpha;
     private int Beta;
     private List<Action> actionsPossibles;
+    private MyArrayList<Action> actionsAEffectuer;
+    private boolean rechercheEffectuee=false;
 
-    private final int verbosity = 0;
+    private final int verbosity = 2;
 
     public AlphaBetaAi(GameConfig config, String player_skin, int playerId) {
         super(config,player_skin,"RandomAI",playerId);
@@ -26,6 +28,7 @@ public class AlphaBetaAi extends AbstractAI {
         //this.Beta = 1;
         this.Beta = 2147483646;
         // TODO potentiellement à changer
+        this.actionsAEffectuer = new MyArrayList<>();
     }
 
 
@@ -34,12 +37,39 @@ public class AlphaBetaAi extends AbstractAI {
     public Action choosedAction(GameState gameState) {
         this.joueurCourant = this.getPlayerId();
         actionsPossibles = gameState.getAllPossibleActions();
-        if(verbosity>5){
+        MyArrayList<Action> actionsATester;
+
+
+
+        if(verbosity>1){
             System.out.println();
             for (Action action: actionsPossibles
             ) {
                 System.out.print(" | "+actionToString(action)+" | ");
             }System.out.println();
+
+            System.out.println();
+            for (Action action: actionsAEffectuer
+            ) {
+                System.out.print(" | "+actionToString(action)+" | ");
+            }System.out.println();
+        }
+
+        if(actionsAEffectuer!=null){
+            System.out.println("hey, j'ai "+actionsAEffectuer.size()+" actions à affectuer");
+            if (actionsAEffectuer.size()>0){
+                Action actionRetournee = actionsAEffectuer.get(0);
+                actionsAEffectuer.remove(0);
+                if(actionRetournee==Action.ENDTURN){
+                    actionsAEffectuer.clear();
+                }
+                return actionRetournee;
+            }
+        }
+
+        if(rechercheEffectuee){
+            actionsAEffectuer.clear();
+            return Action.ENDTURN;
         }
         int bestAlpha = this.Alpha;
         int currentAlpha;
@@ -50,21 +80,38 @@ public class AlphaBetaAi extends AbstractAI {
                 }
                 GameState state = gameState.clone();
                 state.apply(action);
+                actionsATester = new MyArrayList<Action>();
+                actionsATester.add(action);
+
                 int numberOfPlayers = state.getPlayers().size();
+
+                AlphaBetaReturnObj returnObj = alphaBeta(this.Alpha, this.Beta,state,1,3,actionsATester);
                 //state.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
-                currentAlpha = alphaBeta(this.Alpha, this.Beta,state,1,1);
-                if(currentAlpha>bestAlpha){
-                    bestAlpha = currentAlpha;
-                    this.setMemorizedAction(action);
+                if(returnObj.score>bestAlpha){
+                    bestAlpha = returnObj.score;
+                    this.setMemorizedAction(returnObj.actions.get(0));
+                    actionsAEffectuer=(MyArrayList<Action>) returnObj.actions;
                 }
             }
         }catch (IndexOutOfBoundsException e){
             System.out.println("liste des actions possibles vide");
         }
-        return this.getMemorizedAction();
+
+        if(actionsAEffectuer.size()<=0){
+            if(this.getMemorizedAction()==Action.ENDTURN){
+                actionsAEffectuer.clear();
+            }
+            return this.getMemorizedAction();
+        }else{
+            if(actionsAEffectuer.get(0)==Action.ENDTURN){
+                actionsAEffectuer.clear();
+            }
+            return actionsAEffectuer.get(0);
+        }
+
     }
 
-    private int alphaBeta(int alpha, int beta, GameState state, int leveOfRecursion, int maxRecursion) {
+    private AlphaBetaReturnObj alphaBeta(int alpha, int beta, GameState state, int leveOfRecursion, int maxRecursion, MyArrayList<Action> actions) {
         //on définit la situation actuelle
 
         boolean victoire = true;
@@ -75,7 +122,7 @@ public class AlphaBetaAi extends AbstractAI {
 
         Player winner = null;
         for (Player p : state.getPlayers()) {
-            if (winner == null && p.isAlive()) {
+            if (victoire && p.isAlive()) {
                 winner = p;
                 numberAlive++;
             } else if (p.isAlive()) {
@@ -91,66 +138,93 @@ public class AlphaBetaAi extends AbstractAI {
         if(victoire){
             if(winner.getPlayerId() == this.getPlayerId()){
                 //System.out.println("ia "+ this.getPlayerId()+" a gagné");
-                return 2147483646 - leveOfRecursion;
+                AlphaBetaReturnObj ret = new AlphaBetaReturnObj(2147483646 - leveOfRecursion,actions);
+                return ret;
             } else  {
                 //System.out.println("ia "+ winner.getPlayerId()+" a gagné");
-                return -2147483646 + leveOfRecursion;
+                AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-2147483646 + leveOfRecursion,actions);
+                return ret;
             }
         } else if(egalite){
             System.out.println("Egalité !");
-            return 0;
+            AlphaBetaReturnObj ret = new AlphaBetaReturnObj(0,actions);
+            return ret;
         } else if(victoire && egalite){
             System.out.println("victoire && egalite, something went wrong");
 
-        }else if(leveOfRecursion > maxRecursion){
+        }if(leveOfRecursion > maxRecursion){
             // TODO choisir quoi retourner
-            return 0;
-        }else { // partie en cours
-            List<Action> actions = state.getAllPossibleActions();
+            AlphaBetaReturnObj ret = new AlphaBetaReturnObj(0,actions);
+            return ret;
+        }else{ // partie en cours
+            List<Action> possibleActions = state.getAllPossibleActions();
             if(verbosity>5){
                 System.out.println();
-                for (Action action: actions
+                for (Action action: possibleActions
                      ) {
                     System.out.print(" | "+actionToString(action)+" | ");
                 }System.out.println();
             }
             if(state.getCurrentPlayerId() == this.getPlayerId()){ // noeud max
-                for(int i = 0; i < actions.size() && alpha < beta; i++){
+                for(int i = 0; i < possibleActions.size() && alpha < beta; i++){
                     GameState newState = state.clone();
-                    Action chosenAction = actions.get(i);
+                    MyArrayList<Action> actions1 = actions.clone();
+                    if(actions1==null){
+                        System.out.println("hey, actions1 is null man");
+                    }
+                    Action chosenAction = possibleActions.get(i);
                     if(verbosity>4){
                         System.out.println(actionToString(chosenAction));
                     }
                     newState.apply(chosenAction);
+                    actions1.add(chosenAction);
+
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
                         int numberOfPlayers = state.getPlayers().size();
                         //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
-                        alpha = max(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion));
+                        AlphaBetaReturnObj returnObj = alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion,actions1);
+                        if(returnObj.score>alpha){
+                            alpha=returnObj.score;
+                            actions = (MyArrayList<Action>) returnObj.actions;
+                        }
                     } else {
-                        alpha = alphaBeta(alpha, beta,newState,leveOfRecursion,maxRecursion);
+                        AlphaBetaReturnObj returnObj = alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion,actions1);
+                        alpha = returnObj.score;
+                        actions=(MyArrayList<Action>)returnObj.actions;
                     }
                 }
-                return alpha;
+                AlphaBetaReturnObj ret = new AlphaBetaReturnObj(alpha,actions);
+                return ret;
             } else {
-                for(int i = 0; i < actions.size() && alpha < beta; i++){
+                for(int i = 0; i < possibleActions.size() && alpha < beta; i++){
                     GameState newState = state.clone();
-                    Action chosenAction = actions.get(i);
+                    MyArrayList<Action> actions1 = actions.clone();
+                    if(actions1==null){
+                        System.out.println("hey, actions1 is null man");
+                    }
+                    Action chosenAction = possibleActions.get(i);
                     if(verbosity>4){
                         System.out.println(actionToString(chosenAction));
                     }
                     newState.apply(chosenAction);
+                    actions1.add(chosenAction);
                     if(state.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
                         int numberOfPlayers = state.getPlayers().size();
                         //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1) % numberOfPlayers);
-                        beta = min(alpha,alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion));
+                        AlphaBetaReturnObj returnObj =alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion,actions1);
+                        if(returnObj.score<alpha){
+                            beta=returnObj.score;
+                            actions=(MyArrayList<Action>)returnObj.actions;
+                        }
                     }else{
-                        beta = alphaBeta(alpha, beta,newState,leveOfRecursion,maxRecursion);
+                        AlphaBetaReturnObj returnObj = alphaBeta(alpha, beta,newState,leveOfRecursion++,maxRecursion,actions1);
+                        beta = returnObj.score;
                     }
                 }
-                return beta;
+                AlphaBetaReturnObj ret = new AlphaBetaReturnObj(beta,actions);
+                return ret;
             }
         }
-        return 0;
     }
 
     public String actionToString(Action a){

@@ -83,7 +83,7 @@ public class GameState {
 
 		Player current_player = getPlayers().get(current_player_id);
 
-		System.out.println("get all possible actions, the player id is : "+current_player_id);
+		//System.out.println("get all possible actions, the player id is : "+current_player_id);
 
 		// Right
 		List<Cell> adjacentCells = current_player.getCell().getAdjacentCells();

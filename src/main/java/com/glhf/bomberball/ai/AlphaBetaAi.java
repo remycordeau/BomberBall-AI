@@ -22,6 +22,7 @@ public class AlphaBetaAi extends AbstractAI {
     private boolean rechercheEffectuee=false;
 
     private final int verbosity = 4;
+    int finalscore=-1;
 
     public AlphaBetaAi(GameConfig config, String player_skin, int playerId) {
         super(config,player_skin,"RandomAI",playerId);
@@ -37,12 +38,10 @@ public class AlphaBetaAi extends AbstractAI {
 
     @Override
     public Action choosedAction(GameState gameState) {
+
         this.joueurCourant = this.getPlayerId();
         actionsPossibles = gameState.getAllPossibleActions();
         MyArrayList<Action> actionsATester;
-
-
-
 
         if(verbosity>1){
             System.out.println();
@@ -74,6 +73,8 @@ public class AlphaBetaAi extends AbstractAI {
                 ) {
                     System.out.print(" | "+actionToString(action)+" | ");
                 }System.out.println();
+
+                System.out.println("le score espéré était "+finalscore);
                 return actionRetournee;
             }
         }
@@ -81,7 +82,9 @@ public class AlphaBetaAi extends AbstractAI {
         if(rechercheEffectuee){
             actionsAEffectuer.clear();
             System.out.println("le coup choisi est : "+this.actionToString(Action.ENDTURN));
+            rechercheEffectuee=false;
             return Action.ENDTURN;
+
         }
         int bestAlpha = this.Alpha;
         int currentAlpha;
@@ -106,13 +109,14 @@ public class AlphaBetaAi extends AbstractAI {
 
 
                 int numberOfPlayers = state.getPlayers().size();
-                String branch = Integer.toString(i);;
-                AlphaBetaReturnObj returnObj = alphaBeta(this.Alpha, this.Beta,state,1,2,actionsATester,listeDActionPossible,branch);
+                String branch = Integer.toString(i);
+                AlphaBetaReturnObj returnObj = alphaBeta(this.Alpha, this.Beta,state,1,5,actionsATester,listeDActionPossible,branch);
                 //state.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
                 if(returnObj.score>bestAlpha){
                     bestAlpha = returnObj.score;
                     this.setMemorizedAction(returnObj.actions.get(0));
                     actionsAEffectuer=(MyArrayList<Action>) returnObj.actions;
+                    finalscore=returnObj.score;
                 }
                 i++;
             }
@@ -202,7 +206,12 @@ public class AlphaBetaAi extends AbstractAI {
 
         }if(leveOfRecursion > maxRecursion){
             // TODO choisir quoi retourner
-            AlphaBetaReturnObj ret = new AlphaBetaReturnObj(0,actions,(MyArrayList)retourActionsPossibles);
+            AlphaBetaReturnObj ret=null;
+            if(state.getCurrentPlayerId()==this.getPlayerId()){
+                ret = new AlphaBetaReturnObj(-2,actions,(MyArrayList)retourActionsPossibles);
+            }else{
+                ret = new AlphaBetaReturnObj(2,actions,(MyArrayList)retourActionsPossibles);
+            }
             if(verbosity>2){
                 System.out.println("returned at max recursion");
             }
@@ -219,7 +228,9 @@ public class AlphaBetaAi extends AbstractAI {
                     System.out.print(" | "+actionToString(action)+" | ");
                 }System.out.println();
             }
+            int oldPlayer = state.getCurrentPlayerId();
             if(state.getCurrentPlayerId() == this.getPlayerId()){ // noeud max
+
                 if(!state.getCurrentPlayer().isAlive()){
                     AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-10,actions,(MyArrayList)retourActionsPossibles);
                     return ret;
@@ -249,8 +260,11 @@ public class AlphaBetaAi extends AbstractAI {
                         }
                         retourAcionsPossibles2.add(lesTrucsARetourner);
 
-
-                        if(newState.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
+                        int theCurretPlayerId = state.getCurrentPlayerId();
+                        if(oldPlayer!=theCurretPlayerId){
+                            System.out.println("=========!!!!!!!!!!!   the player id indeed changed");
+                        }
+                        if(theCurretPlayerId!=oldPlayer || newState.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN){
                             //int numberOfPlayers = state.getPlayers().size();
                             //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1)% numberOfPlayers);
 
@@ -301,7 +315,11 @@ public class AlphaBetaAi extends AbstractAI {
                         ) {lesTrucsARetourner.add(actionARetourner);
                         }
                         retourAcionsPossibles2.add(lesTrucsARetourner);
-                        if(newState.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
+                        int theCurretPlayerId = state.getCurrentPlayerId();
+                        if(oldPlayer!=theCurretPlayerId){
+                            System.out.println("=========!!!!!!!!!!!   the player id indeed changed");
+                        }
+                        if(oldPlayer!= theCurretPlayerId || newState.getCurrentPlayer().getNumberMoveRemaining() == 0 || chosenAction == Action.ENDTURN) {
                             //int numberOfPlayers = state.getPlayers().size();
                             //newState.setCurrentPlayerId((state.getCurrentPlayerId() + 1) % numberOfPlayers);
                             AlphaBetaReturnObj returnObj =alphaBeta(alpha, beta,newState,leveOfRecursion+1,maxRecursion,actions1,retourAcionsPossibles2,branch+i);

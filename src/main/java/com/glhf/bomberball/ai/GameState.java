@@ -8,6 +8,7 @@ import com.glhf.bomberball.maze.Maze;
 import com.glhf.bomberball.maze.cell.Cell;
 import com.glhf.bomberball.utils.Action;
 import com.glhf.bomberball.utils.Directions;
+import org.lwjgl.Sys;
 
 public class GameState {
 	private Maze maze;
@@ -34,8 +35,8 @@ public class GameState {
 
 	public GameState clone() {
 		GameState gameStateClone = new GameState((Maze) this.maze.clone(),
-				this.current_player_id,
-				this.remaining_turns);
+												this.current_player_id,
+												this.remaining_turns);
 		return gameStateClone;
 	}
 
@@ -81,6 +82,8 @@ public class GameState {
 		List<Action> possibleActions = new ArrayList<Action>();
 
 		Player current_player = getPlayers().get(current_player_id);
+
+		System.out.println("get all possible actions, the player id is : "+current_player_id);
 
 		// Right
 		List<Cell> adjacentCells = current_player.getCell().getAdjacentCells();

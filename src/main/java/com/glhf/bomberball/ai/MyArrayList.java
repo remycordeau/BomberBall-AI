@@ -15,7 +15,13 @@ public class MyArrayList<T> extends ArrayList<T> {
         MyArrayList ret = new MyArrayList();
         Iterator<T> it = this.iterator();
         while (it.hasNext()){
-            ret.add(it.next());
+            T obj = it.next();
+            try {
+                MyArrayList obj2 = ((MyArrayList) obj).clone();
+            }catch (Exception e){
+                T obj2 = obj;
+            }
+            ret.add(obj);
         }
         return ret;
     }

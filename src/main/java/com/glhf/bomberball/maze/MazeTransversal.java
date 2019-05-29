@@ -216,7 +216,7 @@ public class MazeTransversal{
      * @return ArrayList<Directions>
      */
     @SuppressWarnings("unchecked")
-    public static ArrayList<Directions> depth_graph_transversal(Cell cell_origin, int range) {
+	public static ArrayList<Directions> depth_graph_transversal(Cell cell_origin, int range) {
         ArrayList<Cell> cells = new ArrayList<>();
         LinkedList<Cell> active_queue = new LinkedList<>();
         LinkedList<Cell> inactive_queue = new LinkedList<>();

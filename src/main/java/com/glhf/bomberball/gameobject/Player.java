@@ -39,20 +39,20 @@ public class Player extends Character {
     }
 
     public Player(String player_skin,
-                  int life,
-                  int initial_moves,
-                  int initial_bomb_number,
-                  int initial_bomb_range,
-                  String name)
-    {
-        super(player_skin, life, initial_moves);
-        this.observers = new ArrayList<>();
-        this.active = false;
-        this.name = name;
-        this.initial_bomb_number = initial_bomb_number;
-        this.initial_bomb_range = initial_bomb_range;
-        initialize();
-    }
+            int life,
+            int initial_moves,
+            int initial_bomb_number,
+            int initial_bomb_range,
+            String name)
+	{
+	  super(player_skin, life, initial_moves);
+	  this.observers = new ArrayList<>();
+	  this.active = false;
+	  this.name = name;
+	  this.initial_bomb_number = initial_bomb_number;
+	  this.initial_bomb_range = initial_bomb_range;
+	  initialize();
+	}
 
     @Override
     public void initialize() {
@@ -112,7 +112,7 @@ public class Player extends Character {
     }
 
     @Override
-    public void interactWithCell(Cell cell) {
+	public void interactWithCell(Cell cell) {
         for (Bonus bonus : cell.getInstancesOf(Bonus.class)) {
             bonus.dispose();
             bonus.applyEffect(this);
@@ -164,20 +164,20 @@ public class Player extends Character {
         return clone;
     }
 
-    public int getPlayerId() {
-        return player_id;
-    }
-    public void setPlayerId(int playerId) {
-        this.player_id=playerId;
+	public int getPlayerId() {
+		return player_id;
+	}
+	public void setPlayerId(int playerId) {
+		this.player_id=playerId;
 
-    }
+	}
 
-    @Override
-    public String toString() {
-        return "Player [ name=" + name + ", bombs_remaining="
-                + bombs_remaining + ", player_id=" + player_id + ", moves_remaining=" + moves_remaining + ", life="
-                + life + "]";
-    }
+	@Override
+	public String toString() {
+		return "Player [ name=" + name + ", bombs_remaining="
+				+ bombs_remaining + ", player_id=" + player_id + ", moves_remaining=" + moves_remaining + ", life="
+				+ life + "]";
+	}
 
 
 }

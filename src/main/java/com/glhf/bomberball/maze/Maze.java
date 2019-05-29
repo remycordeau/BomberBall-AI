@@ -18,10 +18,10 @@ import java.util.List;
 
 public class Maze implements Cloneable{
 
-    String title;
+	 String title;
     List<VectorInt2> spawn_positions = new ArrayList<>();
 
-    int height;
+	int height;
     int width;
     Cell[][] cells;
     List<Player> players;
@@ -43,55 +43,55 @@ public class Maze implements Cloneable{
     }
 
     public Cell[][] getCells() {
-        return cells;
-    }
+		return cells;
+	}
 
-    public void setCells(Cell[][] cells) {
-        this.cells = cells;
-    }
+	public void setCells(Cell[][] cells) {
+		this.cells = cells;
+	}
 
 
-    public Object clone() {
-        Maze mazeClone = new Maze(this.width, this.height);
+	public Object clone() {
+		Maze mazeClone = new Maze(this.width, this.height);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 mazeClone.cells[x][y] = this.cells[x][y].clone();
             }
         }
 
-        mazeClone.spawn_positions= new ArrayList<VectorInt2>(spawn_positions.size());
-        for (int i = 0; i < players.size(); i++) {
-            mazeClone.spawn_positions.add(((VectorInt2) spawn_positions.get(i)));
-        }
+		mazeClone.spawn_positions= new ArrayList<VectorInt2>(spawn_positions.size());
+		for (int i = 0; i < players.size(); i++) {
+			mazeClone.spawn_positions.add(((VectorInt2) spawn_positions.get(i)));
+		}
 
-        // Browse all cell clones and set players as well as cell adjacency
-        mazeClone.initialize();
+		// Browse all cell clones and set players as well as cell adjacency
+		mazeClone.initialize();
 
-        mazeClone.players = new ArrayList<Player>(players.size());
-        // Initialize list
-        for (int i = 0; i < players.size(); i++) {
-            mazeClone.players.add(null);
-        }
-        // Set real values
-        for (int i = 0; i < players.size(); i++) {
-            Cell playerCell = players.get(i).getCell();
-            Cell playerCloneCell = mazeClone.getCellAt(playerCell.getX(), playerCell.getY());
-            for (Player p : playerCloneCell.getInstancesOf(Player.class)) {
-                int id = p.getPlayerId();
-                mazeClone.players.set(id, p);
-            }
-        }
+		mazeClone.players = new ArrayList<Player>(players.size());
+		// Initialize list
+		for (int i = 0; i < players.size(); i++) {
+			mazeClone.players.add(null);
+		}
+		// Set real values
+		for (int i = 0; i < players.size(); i++) {
+			Cell playerCell = players.get(i).getCell();
+			Cell playerCloneCell = mazeClone.getCellAt(playerCell.getX(), playerCell.getY());
+			for (Player p : playerCloneCell.getInstancesOf(Player.class)) {
+				int id = p.getPlayerId();
+				mazeClone.players.set(id, p);
+			}
+		}
 
-        return mazeClone;
+		return mazeClone;
 
-    }
-    public List<VectorInt2> getSpawn_positions() {
-        return spawn_positions;
-    }
+	}
+	 public List<VectorInt2> getSpawn_positions() {
+			return spawn_positions;
+		}
 
-    public void setSpawn_positions(ArrayList<VectorInt2> spawn_positions) {
-        this.spawn_positions = spawn_positions;
-    }
+		public void setSpawn_positions(ArrayList<VectorInt2> spawn_positions) {
+			this.spawn_positions = spawn_positions;
+		}
 
 
 
@@ -107,7 +107,7 @@ public class Maze implements Cloneable{
     }
 
     public void setPlayers(List<Player> players) {
-        this.players = players;
+    	this.players = players;
     }
 
     public Player spawnPlayer(GameSoloConfig config)

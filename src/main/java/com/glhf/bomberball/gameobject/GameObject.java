@@ -52,7 +52,7 @@ public abstract class GameObject {
     }
 
     @Override
-    public GameObject clone(){
+	public GameObject clone(){
         throw new RuntimeException(this.getClass()+" does not have clone method !!");
     }
 

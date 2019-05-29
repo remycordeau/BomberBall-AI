@@ -46,13 +46,13 @@ public class Cell {
 
 
     public Cell clone() {
-        Cell clone = new Cell(x,y);
-        for (GameObject o : this.objects) {
-            GameObject cloneO = o.clone();
-            clone.addGameObject(cloneO);
-        }
-        // Warning: adjacent cells cannot be set here
-        return clone;
+    	Cell clone = new Cell(x,y);
+    	for (GameObject o : this.objects) {
+    		GameObject cloneO = o.clone();
+    		clone.addGameObject(cloneO);
+    	}
+    	// Warning: adjacent cells cannot be set here
+    	return clone;
     }
 
 
@@ -280,10 +280,10 @@ public class Cell {
     }
 
 
-    @Override
-    public String toString() {
-        return "Cell [x=" + x + ", y=" + y + ", objects=" + objects + "]";
-    }
+	@Override
+	public String toString() {
+		return "Cell [x=" + x + ", y=" + y + ", objects=" + objects + "]";
+	}
 
 
 }

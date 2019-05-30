@@ -196,14 +196,15 @@ public class AlphaBetaAi extends AbstractAI {
                 winner = newState.getWinner();
                 if(winner!=null){
                     if(winner.getPlayerId() == this.getPlayerId()){
-                        AlphaBetaReturnObj ret = new AlphaBetaReturnObj(2147483646 - myBadness,actions,(MyArrayList)retourActionsPossibles,myBadness);
+                        AlphaBetaReturnObj ret = new AlphaBetaReturnObj(2147483646 - leveOfRecursion,actions,(MyArrayList)retourActionsPossibles,myBadness);
                         //AlphaBetaReturnObj ret = new AlphaBetaReturnObj(5,actions,(MyArrayList)retourActionsPossibles);
+                        System.out.println("returned at victoire en "+leveOfRecursion+" coups, score "+(2147483646 - leveOfRecursion));
                         return ret;
                     } else  {
-                        AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-2147483646+ myBadness,actions,(MyArrayList)retourActionsPossibles,myBadness);
+                        AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-2147483646+ leveOfRecursion,actions,(MyArrayList)retourActionsPossibles,myBadness);
                         //AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-5,actions,(MyArrayList)retourActionsPossibles);
                         if(verbosity>2){
-                            //System.out.println("returned at defaite");
+                            System.out.println("returned at defaite");
                         }
                         return ret;
                     }
@@ -240,6 +241,9 @@ public class AlphaBetaAi extends AbstractAI {
             //System.out.println("currentPlayerId : "+currentPlayerId+" stateurrentPlayerId : "+state.getCurrentPlayerId()+" state.getCurrentPlayer.getPLayerId : "+state.getCurrentPlayer().getPlayerId());
             AlphaBetaReturnObj returnObj = alphaBeta(alpha, beta,newState,leveOfRecursion+1,maxRecursion,actions1,retourAcionsPossibles2,branch+i,onJoueVraiment,recursivebadness);
 
+            System.out.println("score "+returnObj.score+" alpha "+alpha+" beta "+beta);
+
+            // TODO adapter alpha beta pour des noeuds max à la suite et des noeuds min à la suite.
             if(state.getCurrentPlayerId() == this.getPlayerId()) { // noeud max
                 if(returnObj.score>alpha){
                     alpha=returnObj.score;

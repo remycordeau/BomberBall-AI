@@ -42,7 +42,8 @@ public class GameState {
 
 	public boolean gameIsOver() {
 		int nAlive = 0;
-		if (getRemainingTurns() == 0) { return true; }
+		if (getRemainingTurns() == 0) {
+			return true; }
 		for (Player p : getPlayers()) {
 			if (p.isAlive()) {
 				nAlive++;
@@ -150,7 +151,6 @@ public class GameState {
 		if (!gameIsOver()) {
 			nextPlayer();
 		}
-
 	}
 
 

@@ -5,15 +5,15 @@ import com.glhf.bomberball.utils.Action;
 import java.util.List;
 
 public class AlphaBetaReturnObj {
-    public int alpha;
-    public int beta;
+    public int score;
     public List<Action> actions;
     public List<List<Action>> actionsPossibles;
+    public int badness;
 
-    AlphaBetaReturnObj(int alpha,int beta, List<Action> actions,List<List<Action>> actionsPossibles){
-        this.alpha=alpha;
-        this.beta=beta;
+    AlphaBetaReturnObj(int score, List<Action> actions,List<List<Action>> actionsPossibles,int badness){
+        this.score=score;
         this.actions=actions;
         this.actionsPossibles=actionsPossibles;
+        this.badness=badness;
     }
 }

@@ -85,17 +85,11 @@ public class AlphaBetaAi extends AbstractAI {
         // TODO se débarasser de ca une fois qu'on en a plus besoin
         if(verbosity>1){
             actionsPossibles = gameState.getAllPossibleActions();
-            System.out.println();
-            for (Action action: actionsPossibles
-            ) {
-                System.out.print(" | "+actionToString(action)+" | ");
-            }System.out.println();
 
-            System.out.println();
-            for (Action action: actionsAEffectuer
-            ) {
-                System.out.print(" | "+actionToString(action)+" | ");
-            }System.out.println();
+            printActions(actionsPossibles);
+
+            printActions(actionsAEffectuer);
+
         }
         // TODO se débarasser de ca une fois qu'on en a plus besoin
         // TODO se débarasser de ca une fois qu'on en a plus besoin
@@ -112,11 +106,8 @@ public class AlphaBetaAi extends AbstractAI {
             }
             System.out.println("le coup choisi est : "+this.actionToString(actionRetournee));
             System.out.println("les actions possibles étaient alors:");
-            System.out.println();
-            for (Action action: lesActionsPossiblesACetEndroit
-            ) {
-                System.out.print(" | "+actionToString(action)+" | ");
-            }System.out.println();
+
+            printActions(lesActionsPossiblesACetEndroit);
 
             System.out.println("le score espéré était "+finalscore);
             return actionRetournee;
@@ -222,21 +213,27 @@ public class AlphaBetaAi extends AbstractAI {
                 System.out.println("caution, the current player is dead : life = "+state.getCurrentPlayer().getLife());
             }
             List<Action> possibleActions = state.getAllPossibleActions();
-            if(verbosity>5){
-                System.out.println();
-                for (Action action: possibleActions
-                     ) {
-                    System.out.print(" | "+actionToString(action)+" | ");
-                }System.out.println();
-            }
+
+            if(verbosity>5)printActions(possibleActions);
 
             int oldPlayer = state.getCurrentPlayerId();
+
+
+            // TODO se débarasser de ce segment
+            //ceci ne devrait jamais être atteint et devrit être intercepté avant
             if(!state.getCurrentPlayer().isAlive()){
-                AlphaBetaReturnObj ret = new AlphaBetaReturnObj(-10,actions,(MyArrayList)retourActionsPossibles);
+                AlphaBetaReturnObj ret=null;
+                if(state.getCurrentPlayerId()==this.getPlayerId()){
+                    // on Meurt, score très négatif
+                    ret = new AlphaBetaReturnObj(-10,actions,(MyArrayList)retourActionsPossibles);
+                }else{
+                    // l'autre Meurt, score très positif
+                    ret = new AlphaBetaReturnObj(10,actions,(MyArrayList)retourActionsPossibles);
+                }
                 return ret;
             }
 
-            //TODO change the returns depending on who is playing
+
             for(int i = 0; i < possibleActions.size() && alpha < beta; i++){
 
                 // On choisit une action possible
@@ -334,5 +331,13 @@ public class AlphaBetaAi extends AbstractAI {
             case DROP_SELECTED_OBJECT:ret="DROP_SELECTED_OBJECT";break;
         }
         return ret;
+    }
+
+    public void printActions(List<Action> list){
+        System.out.println();
+        for (Action action: list
+        ) {
+            System.out.print(" | "+actionToString(action)+" | ");
+        }System.out.println();
     }
 }

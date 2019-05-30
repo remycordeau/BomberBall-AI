@@ -17,12 +17,13 @@ public class MyArrayList<T> extends ArrayList<T> {
         Iterator<T> it = this.iterator();
         while (it.hasNext()){
             T obj = it.next();
-            try {
-                MyArrayList obj2 = ((MyArrayList) obj).clone();
-            }catch (Exception e){
-                T obj2 = obj;
+            T obj2;
+            if(obj instanceof MyArrayList){
+                ret.add(((MyArrayList)obj).clone());
+            }else{
+                ret.add(obj);
             }
-            ret.add(obj);
+
         }
         return ret;
     }

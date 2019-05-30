@@ -151,7 +151,7 @@ public class AlphaBetaAi extends AbstractAI {
         if(verbosity>5)printActions(possibleActions);
 
 
-        for(int i = 0; i < possibleActions.size() && alpha < beta; i++){
+        for(int i = 0; i < possibleActions.size() && foundAlpha< foundBeta; i++){
 
             Action chosenAction = possibleActions.get(i);
             //System.out.println(actionToString(chosenAction));
@@ -201,11 +201,17 @@ public class AlphaBetaAi extends AbstractAI {
                     }
                 }else{
                     //System.out.println("Egalité !");
-                    AlphaBetaReturnObj ret = new AlphaBetaReturnObj(0, actions1, (MyArrayList) retourActionsPossibles,myBadness);
-                    if (verbosity > 2) {
-                        //System.out.println("returned at egalite");
+                    if(this.getPlayerId()==state.getCurrentPlayerId()){
+                        if(0>foundAlpha){
+                            actionsToReturn=actions1;
+                            foundAlpha=0;
+                        }
+                    }else{
+                        if(0<foundBeta){
+                            actionsToReturn=actions1;
+                            foundBeta=0;
+                        }
                     }
-                    return ret;
                 }
             }
             else{
@@ -222,14 +228,14 @@ public class AlphaBetaAi extends AbstractAI {
                     if(returnObj.score>foundAlpha){
                         //System.out.println("max node, updated alpha");
                         foundAlpha=returnObj.score;
-                        actionsToReturn = ((MyArrayList<Action>) returnObj.actions).clone();
+                        actionsToReturn = (MyArrayList<Action>) returnObj.actions;
                         retourActionsPossibles=((MyArrayList) returnObj.actionsPossibles).clone();
                     }
                 }else{  // noeud min
                     if(returnObj.score<foundBeta) {
                         //System.out.println("min node, updated beta");
                         foundBeta = returnObj.score;
-                        actionsToReturn = ((MyArrayList<Action>) returnObj.actions).clone();
+                        actionsToReturn = (MyArrayList<Action>) returnObj.actions;
                         retourActionsPossibles = ((MyArrayList) returnObj.actionsPossibles).clone();
                     }
                 }

@@ -7,13 +7,11 @@ import java.util.List;
 public class AlphaBetaReturnObj {
     public double score;
     public List<Action> actions;
-    public List<List<Action>> actionsPossibles;
-    public int badness;
+    public String message;
 
-    AlphaBetaReturnObj(double score, List<Action> actions,List<List<Action>> actionsPossibles,int badness){
+    AlphaBetaReturnObj(double score, List<Action> actions,String message){
         this.score=score;
         this.actions=actions;
-        this.actionsPossibles=actionsPossibles;
-        this.badness=badness;
+        this.message=message;
     }
 }

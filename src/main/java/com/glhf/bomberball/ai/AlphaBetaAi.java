@@ -23,12 +23,21 @@ public class AlphaBetaAi extends AbstractAI {
     double beginOfGameCoordinatesUsY;
     double beginOfGameCoordinatesHimX;
     double beginOfGameCoordinatesHimY;
+
+    double lastPositionStartTurnUsX;
+    double lastPositionStartTurnUsY;
+    double lastPositionStartTurnHimX;
+    double lastPositionStartTurnHimY;
+
     boolean beginOfGameInitialized=false;
 
     double beginOfTurnCoordinatesUsX;
     double beginOfTurnCoordinatesUsY;
     double beginOfTurnCoordinatesHimX;
     double beginOfTurnCoordinatesHimY;
+
+    double distanceCoveredThisGameUs=0;
+    double distanceCoveredThisGameHim=0;
 
     private final int verbosity = 3;
     double finalscore=-1;
@@ -60,12 +69,30 @@ public class AlphaBetaAi extends AbstractAI {
         beginOfTurnCoordinatesHimX = gameState.getPlayers().get((this.getPlayerId()+1)%2).getX();
         beginOfTurnCoordinatesHimY = gameState.getPlayers().get((this.getPlayerId()+1)%2).getY();
 
+
+
         if(!beginOfGameInitialized){
             beginOfGameCoordinatesUsX=beginOfTurnCoordinatesUsX;
             beginOfGameCoordinatesUsY=beginOfTurnCoordinatesUsY;
             beginOfGameCoordinatesHimX=beginOfTurnCoordinatesHimX;
             beginOfGameCoordinatesHimY=beginOfTurnCoordinatesHimY;
+
+            lastPositionStartTurnUsX = beginOfTurnCoordinatesUsX;
+            lastPositionStartTurnUsY = beginOfTurnCoordinatesUsY;
+            lastPositionStartTurnHimX = beginOfTurnCoordinatesHimX;
+            lastPositionStartTurnHimY = beginOfTurnCoordinatesHimY;
+
             beginOfGameInitialized=true;
+        }else{
+            Player us = gameState.getPlayers().get(this.getPlayerId());
+            Player him = gameState.getPlayers().get((this.getPlayerId()+1)%2);
+            distanceCoveredThisGameUs +=distanceBetweeCoordinates(lastPositionStartTurnUsX,us.getX(),lastPositionStartTurnUsY,us.getY());
+            distanceCoveredThisGameHim += distanceBetweeCoordinates(lastPositionStartTurnHimX,him.getX(),lastPositionStartTurnHimY,him.getY());
+
+            lastPositionStartTurnUsX = beginOfTurnCoordinatesUsX;
+            lastPositionStartTurnUsY = beginOfTurnCoordinatesUsY;
+            lastPositionStartTurnHimX = beginOfTurnCoordinatesHimX;
+            lastPositionStartTurnHimY = beginOfTurnCoordinatesHimY;
         }
 
 
@@ -143,12 +170,6 @@ public class AlphaBetaAi extends AbstractAI {
         double foundAlpha=alpha;
         double foundBeta=beta;
 
-        if(this.getPlayerId()==state.getCurrentPlayerId()){
-            System.out.println("we are playing");
-        }else{
-            System.out.println("we are not playing");
-        }
-
         if(onJoueVraiment){
             if(this.getPlayerId()!=state.getCurrentPlayerId()){
                 onJoueVraiment=false;
@@ -158,8 +179,16 @@ public class AlphaBetaAi extends AbstractAI {
         if(leveOfRecursion > maxRecursion){
             // TODO choisir quoi retourner (heuristique)
             AlphaBetaReturnObj ret;
-            double dist = 2*this.distanceBetweenPlayers(state);
-            double score =  1/dist;
+            double distFromEnnemy = 2*this.distanceBetweenPlayers(state);
+            double scoreEnemy =  1/distFromEnnemy;
+
+            double distanceThisTurn = distanceFromBeginOfTurnPos(state.getCurrentPlayer());
+
+            double distanceFromBeginGamePos = distanceFromBeginOfGamePos(state.getCurrentPlayer());
+
+            double distanceCoveredFromStart = distanceCoveredThisGame(state.getCurrentPlayer())+distanceThisTurn;
+
+            double score = scoreEnemy;
             //System.out.println("dist "+dist+" score "+score);
             if(state.getCurrentPlayerId()==this.getPlayerId()){
                 ret = new AlphaBetaReturnObj(score,actions,(MyArrayList)retourActionsPossibles,myBadness);
@@ -342,6 +371,18 @@ public class AlphaBetaAi extends AbstractAI {
             y2 = beginOfTurnCoordinatesHimY;
         }
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+    }
+
+    public double distanceBetweeCoordinates(double x1,double y1,double x2,double y2){
+        return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+    }
+
+    public double distanceCoveredThisGame(Player player){
+        if(player.getPlayerId()==this.getPlayerId()){
+            return distanceCoveredThisGameUs;
+        }else{
+            return distanceCoveredThisGameHim;
+        }
     }
 
 }

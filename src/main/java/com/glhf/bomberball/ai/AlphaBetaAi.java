@@ -3,9 +3,7 @@ package com.glhf.bomberball.ai;
 import com.glhf.bomberball.config.GameConfig;
 import com.glhf.bomberball.gameobject.Player;
 import com.glhf.bomberball.utils.Action;
-import org.lwjgl.Sys;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.max;
@@ -20,6 +18,17 @@ public class AlphaBetaAi extends AbstractAI {
     MyArrayList<MyArrayList<Action>> listeDActionPossible;
     private boolean rechercheEffectuee=false;
     int actionsALaSuite=0;
+
+    double beginOfGameCoordinatesUsX;
+    double beginOfGameCoordinatesUsY;
+    double beginOfGameCoordinatesHimX;
+    double beginOfGameCoordinatesHimY;
+    boolean beginOfGameInitialized=false;
+
+    double beginOfTurnCoordinatesUsX;
+    double beginOfTurnCoordinatesUsY;
+    double beginOfTurnCoordinatesHimX;
+    double beginOfTurnCoordinatesHimY;
 
     private final int verbosity = 3;
     double finalscore=-1;
@@ -45,6 +54,21 @@ public class AlphaBetaAi extends AbstractAI {
 
     @Override
     public Action choosedAction(GameState gameState) {
+
+        beginOfTurnCoordinatesUsX = gameState.getPlayers().get(this.getPlayerId()).getX();
+        beginOfTurnCoordinatesUsY = gameState.getPlayers().get(this.getPlayerId()).getY();
+        beginOfTurnCoordinatesHimX = gameState.getPlayers().get((this.getPlayerId()+1)%2).getX();
+        beginOfTurnCoordinatesHimY = gameState.getPlayers().get((this.getPlayerId()+1)%2).getY();
+
+        if(!beginOfGameInitialized){
+            beginOfGameCoordinatesUsX=beginOfTurnCoordinatesUsX;
+            beginOfGameCoordinatesUsY=beginOfTurnCoordinatesUsY;
+            beginOfGameCoordinatesHimX=beginOfTurnCoordinatesHimX;
+            beginOfGameCoordinatesHimY=beginOfTurnCoordinatesHimY;
+            beginOfGameInitialized=true;
+        }
+
+
 
         if(rechercheEffectuee && actionsAEffectuer.size()<=0){
             rechercheEffectuee=false;
@@ -290,4 +314,34 @@ public class AlphaBetaAi extends AbstractAI {
         int y2 = p2.getY();
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
+
+    public double distanceFromBeginOfGamePos(Player player){
+        double x1 = player.getX();
+        double y1 = player.getY();
+        double x2,y2;
+        if(player.getPlayerId()==this.getPlayerId()){
+            x2 = this.beginOfGameCoordinatesUsX;
+            y2 = this.beginOfGameCoordinatesUsY;
+        }else{
+            x2 = this.beginOfGameCoordinatesHimX;
+            y2 = this.beginOfGameCoordinatesHimY;
+        }
+        return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+    }
+
+
+    public double distanceFromBeginOfTurnPos(Player player){
+        double x1 = player.getX();
+        double y1 = player.getY();
+        double x2,y2;
+        if(player.getPlayerId()==this.getPlayerId()) {
+            x2 = beginOfTurnCoordinatesUsX;
+            y2 = beginOfTurnCoordinatesUsY;
+        }else{
+            x2 = beginOfTurnCoordinatesHimX;
+            y2 = beginOfTurnCoordinatesHimY;
+        }
+        return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
+    }
+
 }

@@ -179,8 +179,8 @@ public class AlphaBetaAi extends AbstractAI {
         if(leveOfRecursion > maxRecursion){
             // TODO choisir quoi retourner (heuristique)
             AlphaBetaReturnObj ret;
-            double distFromEnnemy = 2*this.distanceBetweenPlayers(state);
-            double scoreEnemy =  1/distFromEnnemy;
+            double distFromEnnemy = this.distanceBetweenPlayers(state);
+            double scoreEnemy =  4/distFromEnnemy;
 
             double distanceThisTurn = distanceFromBeginOfTurnPos(state.getCurrentPlayer());
 
@@ -188,7 +188,7 @@ public class AlphaBetaAi extends AbstractAI {
 
             double distanceCoveredFromStart = distanceCoveredThisGame(state.getCurrentPlayer())+distanceThisTurn;
 
-            double score = scoreEnemy;
+            double score = scoreEnemy+distanceThisTurn;
             //System.out.println("dist "+dist+" score "+score);
             if(state.getCurrentPlayerId()==this.getPlayerId()){
                 ret = new AlphaBetaReturnObj(score,actions,(MyArrayList)retourActionsPossibles,myBadness);

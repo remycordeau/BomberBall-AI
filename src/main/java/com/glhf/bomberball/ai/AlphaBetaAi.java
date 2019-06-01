@@ -217,7 +217,12 @@ public class AlphaBetaAi extends AbstractAI {
             //si la partie est terminée suite à cette action : verification de victoire/defaite et mise à jour éventuelle de alpha/beta
             if(tryState.gameIsOver()){
                 winner = tryState.getWinner(); //TODO : prendre state ou tryState ? il manque pas un return ici -> on devrait renvoyer le score non ?
-                checkGameResult(winner,state,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
+
+                checkGameResultReturnObject returnObject = checkGameResult(winner,state,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
+                foundAlpha=returnObject.alpha;
+                foundBeta=returnObject.beta;
+                actionsToReturn=returnObject.actions;
+                message=returnObject.message;
 
                 if(tryState.getCurrentPlayerId() == this.getPlayerId()){ // our turn
                      return new AlphaBetaReturnObj(foundAlpha,actionsToReturn,message);
@@ -291,7 +296,13 @@ public class AlphaBetaAi extends AbstractAI {
             Player winner;
             if(newState.gameIsOver()){
                 winner = newState.getWinner(); //TODO : prendre newState en paramètre ou state ?
-                checkGameResult(winner,newState,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
+
+                checkGameResultReturnObject returnObject = checkGameResult(winner,newState,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
+                foundAlpha=returnObject.alpha;
+                foundBeta=returnObject.beta;
+                actionsToReturn=returnObject.actions;
+                message=returnObject.message;
+
             }
             else{
                 // on fait simuler le reste des actions
@@ -599,7 +610,8 @@ public class AlphaBetaAi extends AbstractAI {
      * @param actions1 : liste d'actions associées à l'état
      * @param message
      */
-    public void checkGameResult(Player winner, GameState state, int leveOfRecursion, double foundAlpha, double foundBeta, List<Action> actionsToReturn, List<Action> actions1, String message){
+    public checkGameResultReturnObject checkGameResult(Player winner, GameState state, int leveOfRecursion, double foundAlpha, double foundBeta, List<Action> actionsToReturn, List<Action> actions1, String message){
+        checkGameResultReturnObject ret;
         if(winner!=null){
             if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){ // on gagne et c'était notre tour de jouer
                 int possibleScore = +2147483646 - 2*leveOfRecursion;
@@ -646,6 +658,7 @@ public class AlphaBetaAi extends AbstractAI {
             }
             message="egalité";
         }
-
+        ret = new checkGameResultReturnObject(new MyArrayList<>(actionsToReturn),foundAlpha,foundBeta,message);
+        return ret;
     }
 }

@@ -9,6 +9,7 @@ import com.glhf.bomberball.maze.Maze;
 import com.glhf.bomberball.maze.cell.Cell;
 import com.glhf.bomberball.utils.Action;
 import com.glhf.bomberball.utils.Directions;
+import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -239,18 +240,29 @@ public class AlphaBetaAi extends AbstractAI {
                     double distFromEnnemy = this.distanceBetweenPlayers(state);
                     double relativeDistFromEnnemy = distFromEnnemy/maxDistanceOnMap;
 
+                    double scoreDistEnemy = -0.5*NumberTurn.getInstance().getNbTurn()*relativeDistFromEnnemy;
+
                     //double scoreEnemy=(maxDistanceOnMap - relativeDistFromEnnemy) * (nombreToursMaximal/4+(NumberTurn.getInstance().getNbTurn()+leveOfRecursion));
 
                     double distanceThisTurn = distanceFromBeginOfTurnPos(state.getCurrentPlayer());
 
                     double walkableScore = maxProfoncdeur*2-walkableDistanceToPlayer(state.getPlayers().get(state.getCurrentPlayerId()),state.getPlayers().get((state.getCurrentPlayerId()+1)%2),dummyState);
 
-                    double relativedistanceThisTurn = 10*distanceThisTurn*(nombreToursMaximal-(NumberTurn.getInstance().getNbTurn())*1.5);
+                    double relativedistanceThisTurn = distanceThisTurn;
 
                     double scoreGoodBombs = walkableDistanceFromBombToPlayer(state.getPlayers().get((this.getPlayerId()+1)%2),state);
 
                     int explode = toBeDestroyedWalls(state);
-                    score = 5*walkableScore+0.2*relativeDistFromEnnemy+0.5*scoreGoodBombs;
+
+                    score = scoreDistEnemy+relativedistanceThisTurn+explode;
+                    message = "score dist enemy : "+scoreDistEnemy+" score dist this turn : "+relativedistanceThisTurn+" score explode : "+explode;
+                    if(walkableScore>-1000000){
+                        double walkableScoreScore = 4*walkableScore*(1+0.05*NumberTurn.getInstance().getNbTurn());
+                        score+= walkableScoreScore;
+                        message+=" score walkable dist : "+walkableScoreScore;
+                    }
+
+
                 }else{ // on suppose que l'adversaire joue de manière "constante"
                     score=2; //à changer ?
                 }
@@ -265,7 +277,7 @@ public class AlphaBetaAi extends AbstractAI {
                 int score=2;*/
 
                 if(state.getCurrentPlayerId()==this.getPlayerId()){ // on renvoie le score calculé par l'heuristique et la liste des actions associées
-                    ret = new AlphaBetaReturnObj(score,actions,"max level from us, score = "+score);
+                    ret = new AlphaBetaReturnObj(score,actions,"max level from us, score = "+message);
                 }else{
                     ret = new AlphaBetaReturnObj(-score,actions,"max level from other");
                 }
@@ -465,8 +477,8 @@ public class AlphaBetaAi extends AbstractAI {
             //we found the path to the enemy
             return walked;
         }else if(profondeur>limit){
-            //return 2147483646;
-            return 2* distanceBetweenCoordinates(cell.getX(),cell.getY(),Ennemy.getX(),Ennemy.getY());
+            return 2147483646;
+            //return 2* distanceBetweenCoordinates(cell.getX(),cell.getY(),Ennemy.getX(),Ennemy.getY());
         }
 
         double minFound=2147483646;
@@ -554,10 +566,10 @@ public class AlphaBetaAi extends AbstractAI {
     }
 
     public boolean cellIsDestructible(Cell cell){
-        boolean ret = true;
+        boolean ret = false;
         for (GameObject object : cell.getGameObjects()){
-                if(!(object instanceof DestructibleWall)){
-                    ret=false;
+                if(object instanceof DestructibleWall){
+                    ret=true;
                 }
         }
         return ret;
@@ -571,31 +583,38 @@ public class AlphaBetaAi extends AbstractAI {
                 cells.add(cell);
             }
         }
-
+        int retplus;
         Cell currentCell=null;
         for (Cell cell : cells) {
             boolean containsBomb=false;
             for (GameObject object:cell.getGameObjects()){
                 if(object instanceof Bomb){
+                    retplus=0;
                     for (Directions dir:Directions.values()){
-                        currentCell=cell;
                         boolean continuer=true;
                         for (int l=0;l<initial_bomb_range && continuer;l++){
                             currentCell=cell.getAdjacentCell(dir);
                             if(currentCell!=null){
-                                if (cellIsDestructible(currentCell)){
-                                    ret++;
-                                    continuer=false;
+                                if (cellIsDestructible(currentCell)) {
+                                    retplus=retplus+1;
+                                    continuer = false;
                                 }else if(!currentCell.isWalkable()){
                                     continuer=false;
                                 }
                             }
                         }
                     }
-
+                    //System.out.println("retplus = "+retplus);
+                    if(retplus<=0){
+                        //System.out.println("bad retplus");
+                        ret=ret-1000;
+                    }else{
+                        ret=ret+retplus;
+                    }
                 }
             }
         }
+        //System.out.println("goodBomb "+ret);
         return ret;
     }
 

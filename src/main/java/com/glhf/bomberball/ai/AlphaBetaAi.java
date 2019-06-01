@@ -47,6 +47,8 @@ public class AlphaBetaAi extends AbstractAI {
     private double distanceCoveredThisGameUs=0;
     private double distanceCoveredThisGameHim=0;
 
+    private double closestDistanceEnnemyYet;
+
     private double maxDistanceOnMap;
     private int nombreToursMaximal;
 
@@ -100,6 +102,7 @@ public class AlphaBetaAi extends AbstractAI {
             lastPositionStartTurnHimX = beginOfTurnCoordinatesHimX;
             lastPositionStartTurnHimY = beginOfTurnCoordinatesHimY;
             maxDistanceOnMap = distanceBetweenCoordinates(0,0,gameState.getMaze().getHeight(),gameState.getMaze().getWidth());
+            closestDistanceEnnemyYet = maxDistanceOnMap;
             System.out.println("max distance on map "+maxDistanceOnMap);
             nombreToursMaximal = NumberTurn.getInstance().getNbTurn();
 
@@ -195,7 +198,7 @@ public class AlphaBetaAi extends AbstractAI {
      */
     private AlphaBetaReturnObj alphaBeta(double alpha, double beta, GameState state, int leveOfRecursion, int maxRecursion, MyArrayList<Action> actions, String branch,boolean onJoueVraiment) {
 
-        String message="default message";
+        String message="";
         GameState newState;
         MyArrayList<Action> actionsToReturn = actions.clone();
         double foundAlpha=alpha;
@@ -232,15 +235,24 @@ public class AlphaBetaAi extends AbstractAI {
                 }
             }else{ // sinon on retourne l'heuristique // TODO choisir quoi retourner (heuristique)
                 AlphaBetaReturnObj ret;
-                double score;
+                double score=0;
 
                 if(this.getPlayerId()==state.getCurrentPlayerId()){ //calcul des différents paramètres nécessaires à notre heuristique, si c'est à nous de jouer
 
                     initializeDummyState(state);
                     double distFromEnnemy = this.distanceBetweenPlayers(state);
-                    double relativeDistFromEnnemy = distFromEnnemy/maxDistanceOnMap;
 
-                    double scoreDistEnemy = -0.5*NumberTurn.getInstance().getNbTurn()*relativeDistFromEnnemy;
+                    if(distFromEnnemy<8 || distFromEnnemy<closestDistanceEnnemyYet){
+                        double scoreDistEnemy=0;
+                        if(distFromEnnemy<closestDistanceEnnemyYet){
+                            scoreDistEnemy=100;
+                            closestDistanceEnnemyYet=distFromEnnemy;
+                        }
+                        double relativeDistFromEnnemy = distFromEnnemy/maxDistanceOnMap;
+                        scoreDistEnemy += -0.5*NumberTurn.getInstance().getNbTurn()*relativeDistFromEnnemy;
+                        score+=scoreDistEnemy;
+                        message +="score dist enemy : "+scoreDistEnemy;
+                    }
 
                     //double scoreEnemy=(maxDistanceOnMap - relativeDistFromEnnemy) * (nombreToursMaximal/4+(NumberTurn.getInstance().getNbTurn()+leveOfRecursion));
 
@@ -254,8 +266,8 @@ public class AlphaBetaAi extends AbstractAI {
 
                     int explode = toBeDestroyedWalls(state);
 
-                    score = scoreDistEnemy+relativedistanceThisTurn+explode;
-                    message = "score dist enemy : "+scoreDistEnemy+" score dist this turn : "+relativedistanceThisTurn+" score explode : "+explode;
+                    score += relativedistanceThisTurn+explode;
+                    message += " score dist this turn : "+relativedistanceThisTurn+" score explode : "+explode;
                     if(walkableScore>-1000000){
                         double walkableScoreScore = 4*walkableScore*(1+0.05*NumberTurn.getInstance().getNbTurn());
                         score+= walkableScoreScore;

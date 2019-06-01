@@ -1,3 +1,6 @@
+/**
+ * Classe implémentant une intelligence artificielle utilisant l'algorithme alpha-beta couplé à une heuristique
+ */
 package com.glhf.bomberball.ai;
 
 import com.glhf.bomberball.config.GameConfig;
@@ -6,7 +9,6 @@ import com.glhf.bomberball.maze.Maze;
 import com.glhf.bomberball.maze.cell.Cell;
 import com.glhf.bomberball.utils.Action;
 import com.glhf.bomberball.utils.Directions;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,52 +22,52 @@ public class AlphaBetaAi extends AbstractAI {
     private int Beta;
     private List<Action> actionsPossibles;
     private MyArrayList<Action> actionsAEffectuer;
-    MyArrayList<MyArrayList<Action>> listeDActionPossible;
+    private MyArrayList<MyArrayList<Action>> listeActionsPossibles;
     private boolean rechercheEffectuee=false;
-    int actionsALaSuite=0;
+    private int actionsALaSuite=0;
 
-    double beginOfGameCoordinatesUsX;
-    double beginOfGameCoordinatesUsY;
-    double beginOfGameCoordinatesHimX;
-    double beginOfGameCoordinatesHimY;
+    private double beginOfGameCoordinatesUsX;
+    private double beginOfGameCoordinatesUsY;
+    private double beginOfGameCoordinatesHimX;
+    private double beginOfGameCoordinatesHimY;
 
-    double lastPositionStartTurnUsX;
-    double lastPositionStartTurnUsY;
-    double lastPositionStartTurnHimX;
-    double lastPositionStartTurnHimY;
+    private double lastPositionStartTurnUsX;
+    private double lastPositionStartTurnUsY;
+    private double lastPositionStartTurnHimX;
+    private double lastPositionStartTurnHimY;
 
-    boolean beginOfGameInitialized=false;
+    private boolean beginOfGameInitialized=false;
 
-    double beginOfTurnCoordinatesUsX;
-    double beginOfTurnCoordinatesUsY;
-    double beginOfTurnCoordinatesHimX;
-    double beginOfTurnCoordinatesHimY;
+    private double beginOfTurnCoordinatesUsX;
+    private double beginOfTurnCoordinatesUsY;
+    private double beginOfTurnCoordinatesHimX;
+    private double beginOfTurnCoordinatesHimY;
 
-    double distanceCoveredThisGameUs=0;
-    double distanceCoveredThisGameHim=0;
+    private double distanceCoveredThisGameUs=0;
+    private double distanceCoveredThisGameHim=0;
 
-    double maxDistanceOnMap;
-    int nombreToursMaximal;
+    private double maxDistanceOnMap;
+    private int nombreToursMaximal;
 
-    GameState dummyState;
-    boolean dummyStateInitialized=false;
-    final int maxProfoncdeur = 10;
+    private GameState dummyState;
+    private  boolean dummyStateInitialized=false;
+    private final int maxProfoncdeur = 10;
 
     private final int verbosity = 3;
-    double finalscore=-1;
-    int theReturnedBadness = -1;
+    private double finalscore=-1;
 
     public AlphaBetaAi(GameConfig config, String player_skin, int playerId) {
+
         super(config,player_skin,"AlphaBetaAI",playerId);
-        //this.Alpha = -1; // initialiser alpha et beta à plus ou moins l'infini
         this.Alpha = -2147483646;
-        //this.Beta = 1;
         this.Beta = 2147483646;
-        // TODO potentiellement à changer
         this.actionsAEffectuer = new MyArrayList<>();
     }
 
-
+    /**
+     * Permet de récupérer l'action mémorisée et d'arreter la recherche
+     * @return Action :  l'action mémorisée
+     */
     @Override
     public Action getMemorizedAction(){
         rechercheEffectuee=false;
@@ -73,6 +75,10 @@ public class AlphaBetaAi extends AbstractAI {
     }
 
 
+    /**
+     * @param gameState
+     * @return Action : l'action a effectuer par l'intelligence artificielle
+     */
     @Override
     public Action choosedAction(GameState gameState) {
 
@@ -81,9 +87,8 @@ public class AlphaBetaAi extends AbstractAI {
         beginOfTurnCoordinatesHimX = gameState.getPlayers().get((this.getPlayerId()+1)%2).getX();
         beginOfTurnCoordinatesHimY = gameState.getPlayers().get((this.getPlayerId()+1)%2).getY();
 
-
-
-        if(!beginOfGameInitialized){
+        //calcul des différents paramètres nécessaires à l'heuristique : distance parcourue par les joeurs, positions des joueurs, distance maximale sur la carte
+        if(!beginOfGameInitialized){// si début de partie
             beginOfGameCoordinatesUsX=beginOfTurnCoordinatesUsX;
             beginOfGameCoordinatesUsY=beginOfTurnCoordinatesUsY;
             beginOfGameCoordinatesHimX=beginOfTurnCoordinatesHimX;
@@ -93,7 +98,7 @@ public class AlphaBetaAi extends AbstractAI {
             lastPositionStartTurnUsY = beginOfTurnCoordinatesUsY;
             lastPositionStartTurnHimX = beginOfTurnCoordinatesHimX;
             lastPositionStartTurnHimY = beginOfTurnCoordinatesHimY;
-            maxDistanceOnMap = distanceBetweeCoordinates(0,0,gameState.getMaze().getHeight(),gameState.getMaze().getWidth());
+            maxDistanceOnMap = distanceBetweenCoordinates(0,0,gameState.getMaze().getHeight(),gameState.getMaze().getWidth());
             System.out.println("max distance on map "+maxDistanceOnMap);
             nombreToursMaximal = NumberTurn.getInstance().getNbTurn();
 
@@ -101,8 +106,8 @@ public class AlphaBetaAi extends AbstractAI {
         }else{
             Player us = gameState.getPlayers().get(this.getPlayerId());
             Player him = gameState.getPlayers().get((this.getPlayerId()+1)%2);
-            distanceCoveredThisGameUs +=distanceBetweeCoordinates(lastPositionStartTurnUsX,us.getX(),lastPositionStartTurnUsY,us.getY());
-            distanceCoveredThisGameHim += distanceBetweeCoordinates(lastPositionStartTurnHimX,him.getX(),lastPositionStartTurnHimY,him.getY());
+            distanceCoveredThisGameUs += distanceBetweenCoordinates(lastPositionStartTurnUsX,us.getX(),lastPositionStartTurnUsY,us.getY());
+            distanceCoveredThisGameHim += distanceBetweenCoordinates(lastPositionStartTurnHimX,him.getX(),lastPositionStartTurnHimY,him.getY());
 
             lastPositionStartTurnUsX = beginOfTurnCoordinatesUsX;
             lastPositionStartTurnUsY = beginOfTurnCoordinatesUsY;
@@ -110,29 +115,25 @@ public class AlphaBetaAi extends AbstractAI {
             lastPositionStartTurnHimY = beginOfTurnCoordinatesHimY;
         }
 
-
-
         if(rechercheEffectuee && actionsAEffectuer.size()<=0){
             rechercheEffectuee=false;
         }
 
-        if(!rechercheEffectuee){
-            //research of the moves to do
+        if(!rechercheEffectuee){ // si l'on a pas encore effectué de recherche, alors l'on recherche les possibles actions à effectuer
             MyArrayList<Action> actionsATester;
             actionsPossibles=gameState.getAllPossibleActions();
             double bestAlpha = this.Alpha;
-            int currentAlpha;
             int i =0;
             try{
-                for(int j=2;j<10;j++){
+                for(int j=2;j<10;j++){ // appel à alpha-beta
                     System.out.println("search maxrecursion = "+j);
                     String branch = Integer.toString(i);
-                    //GameState state = gameState.clone();
+                    GameState state = gameState.clone();
                     actionsATester = new MyArrayList<Action>();
-                    listeDActionPossible = new MyArrayList<>();
-                    AlphaBetaReturnObj returnObj = alphaBeta(this.Alpha, this.Beta,gameState,1,j,actionsATester,branch,true);
+                    AlphaBetaReturnObj returnObj = alphaBeta(this.Alpha, this.Beta,state,1,j,actionsATester,branch,true);
+                    //listeActionsPossibles = new MyArrayList<>();
 
-                    if(returnObj.score>bestAlpha){
+                    if(returnObj.score>bestAlpha){ //on mémorise la meilleure action à effectuer
                         System.out.println("old score "+bestAlpha+" new score "+returnObj.score);
                         printActions(returnObj.actions);
                         bestAlpha = returnObj.score;
@@ -156,16 +157,17 @@ public class AlphaBetaAi extends AbstractAI {
         }
 
         System.out.println("hey, j'ai "+actionsAEffectuer.size()+" actions à affectuer");
+
+        //on récupère et on retourne la prochaine action à effectuer
         if (actionsAEffectuer.size()>0){
             Action actionRetournee = actionsAEffectuer.get(0);
-            //MyArrayList<Action> lesActionsPossiblesACetEndroit = (MyArrayList) listeDActionPossible.get(0);
+            //MyArrayList<Action> lesActionsPossiblesACetEndroit = (MyArrayList) listeActionsPossibles.get(0);
             actionsAEffectuer.remove(0);
-            if(actionRetournee==Action.ENDTURN){
+            if(actionRetournee==Action.ENDTURN){ // si la prochaine action à effectuer est une fin de tour, on supprime les suivantes car ce ne sera plus à nous de jouer
                 actionsAEffectuer.clear();
             }
             System.out.println("le coup choisi est : "+this.actionToString(actionRetournee));
-            System.out.println("les actions possibles étaient alors:");
-
+            //System.out.println("les actions possibles étaient alors:");
             //printActions(lesActionsPossiblesACetEndroit);
 
             System.out.println("le score espéré était "+finalscore);
@@ -178,8 +180,19 @@ public class AlphaBetaAi extends AbstractAI {
         return Action.ENDTURN;
     }
 
+    /**
+     *
+     * @param alpha
+     * @param beta
+     * @param state, état sur lequel on applique notre algorithme
+     * @param leveOfRecursion, niveau de profondeur d'exploration
+     * @param maxRecursion, niveau maximal de profondeur d'exploration autorisé
+     * @param actions
+     * @param branch, branche de l'arbre que l'on explore
+     * @param onJoueVraiment
+     * @return AlphaBetaReturnObj contenant un score, une liste d'actions à effectuer
+     */
     private AlphaBetaReturnObj alphaBeta(double alpha, double beta, GameState state, int leveOfRecursion, int maxRecursion, MyArrayList<Action> actions, String branch,boolean onJoueVraiment) {
-
 
         String message="default message";
         GameState newState;
@@ -193,69 +206,32 @@ public class AlphaBetaAi extends AbstractAI {
             }
         }
 
+        // si l'on a dépassé la profondeur maximale autorisée, on choisit de terminer le tour
         if(leveOfRecursion > maxRecursion){
-            GameState tryState = state.clone();
 
+            GameState tryState = state.clone();
             tryState.apply(Action.ENDTURN);
             Player winner;
             actions1 = actions.clone();
+
+            //si la partie est terminée suite à cette action : verification de victoire/defaite et mise à jour éventuelle de alpha/beta
             if(tryState.gameIsOver()){
-                winner = tryState.getWinner();
-                if(winner!=null){
-                    if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){
-                        int possibleScore = +2147483646 - 2*leveOfRecursion;
-                        if(possibleScore>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=possibleScore;
-                            message="on gagne";
-                        }
-                    } else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){
-                        int possibleScore = -2147483646 + 2*leveOfRecursion;
-                        if(possibleScore>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=possibleScore;
-                            message="on perd";
-                        }
-                    }else if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){
-                        int possibleScore = - 2147483646 + 2*leveOfRecursion;
-                        if(possibleScore<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=possibleScore;
-                            message="on gagne";
-                        }
-                    }else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){
-                        int possibleScore = + 2147483646 - 2*leveOfRecursion;
-                        if(possibleScore<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=possibleScore;
-                            message="on perd";
-                        }
-                    }
-                }else{
-                    //System.out.println("Egalité !");
-                    if(this.getPlayerId()==state.getCurrentPlayerId()){
-                        if(0>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=0;
+                winner = tryState.getWinner(); //TODO : prendre state ou tryState ? il manque pas un return ici -> on devrait renvoyer le score non ?
+                checkGameResult(winner,state,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
 
-                        }
-                    }else{
-                        if(0<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=0;
-                        }
-                    }
-                    message="egalité";
+                if(tryState.getCurrentPlayerId() == this.getPlayerId()){ // our turn
+                     return new AlphaBetaReturnObj(foundAlpha,actionsToReturn,message);
+                } else { //enemy turn
+                    return new AlphaBetaReturnObj(foundBeta,actionsToReturn,message);
                 }
-            }else{
-                // TODO choisir quoi retourner (heuristique)
+            }else{ // sinon on retourne l'heuristique // TODO choisir quoi retourner (heuristique)
                 AlphaBetaReturnObj ret;
-
                 double score;
-                if(this.getPlayerId()==state.getCurrentPlayerId()){
+
+                if(this.getPlayerId()==state.getCurrentPlayerId()){ //calcul des différents paramètres nécessaires à notre heuristique, si c'est à nous de jouer
+
                     initializeDummyState(state);
                     double distFromEnnemy = this.distanceBetweenPlayers(state);
-
                     double relativeDistFromEnnemy = distFromEnnemy/maxDistanceOnMap;
 
                     //double scoreEnemy=(maxDistanceOnMap - relativeDistFromEnnemy) * (nombreToursMaximal/4+(NumberTurn.getInstance().getNbTurn()+leveOfRecursion));
@@ -266,34 +242,24 @@ public class AlphaBetaAi extends AbstractAI {
 
                     double relativedistanceThisTurn = 10*distanceThisTurn*(nombreToursMaximal-(NumberTurn.getInstance().getNbTurn())*1.5);
 
-                    //double scoreGoodBombs = walkableDistanceFromBombToPlayer(state.getPlayers().get((this.getPlayerId()+1)%2),state);
+                    double scoreGoodBombs = walkableDistanceFromBombToPlayer(state.getPlayers().get((this.getPlayerId()+1)%2),state);
 
-                    //int explode = toBeDestroyedWalls(state);
-                    score = walkableScore*2+relativedistanceThisTurn;
-                }else{
-                    score=2;
+                    int explode = toBeDestroyedWalls(state);
+                    score = 5*walkableScore+0.2*relativeDistFromEnnemy+0.5*scoreGoodBombs;
+                }else{ // on suppose que l'adversaire joue de manière "constante"
+                    score=2; //à changer ?
                 }
+                /*
+                double distanceFromBeginGamePos = distanceFromBeginOfGamePos(state.getCurrentPlayer());
+                double relativeDistanceFromBeginGamePos = distanceFromBeginGamePos/maxDistanceOnMap;
 
-            /*
+                double distanceCoveredFromStart = 30* (distanceCoveredThisGame(state.getCurrentPlayer())+distanceThisTurn)*(nombreToursMaximal-(NumberTurn.getInstance().getNbTurn()));
 
+                double score = scoreEnemy+relativedistanceThisTurn;
+                System.out.println("dist "+dist+" score "+score);
+                int score=2;*/
 
-
-
-            */
-
-
-            /*
-            double distanceFromBeginGamePos = distanceFromBeginOfGamePos(state.getCurrentPlayer());
-            double relativeDistanceFromBeginGamePos = distanceFromBeginGamePos/maxDistanceOnMap;
-
-            double distanceCoveredFromStart = 30* (distanceCoveredThisGame(state.getCurrentPlayer())+distanceThisTurn)*(nombreToursMaximal-(NumberTurn.getInstance().getNbTurn()));
-
-            //double score = scoreEnemy+relativedistanceThisTurn;*/
-
-                //System.out.println("dist "+dist+" score "+score);
-
-                //int score=2;
-                if(state.getCurrentPlayerId()==this.getPlayerId()){
+                if(state.getCurrentPlayerId()==this.getPlayerId()){ // on renvoie le score calculé par l'heuristique et la liste des actions associées
                     ret = new AlphaBetaReturnObj(score,actions,"max level from us, score = "+score);
                 }else{
                     ret = new AlphaBetaReturnObj(-score,actions,"max level from other");
@@ -302,6 +268,8 @@ public class AlphaBetaAi extends AbstractAI {
                 return ret;
             }
         }
+
+        // exploration de l'arbre des actions possibles, algorithme alpha beta standard
         List<Action> possibleActions=null;
         possibleActions = state.getAllPossibleActions();
 
@@ -311,11 +279,8 @@ public class AlphaBetaAi extends AbstractAI {
         for(int i = 0; i < possibleActions.size() && foundAlpha< foundBeta; i++){
 
             Action chosenAction = possibleActions.get(i);
-            //System.out.println(actionToString(chosenAction));
-
             newState = state.clone();
             newState.apply(chosenAction);
-
             actions1 = actions.clone();
 
             if(onJoueVraiment){
@@ -325,53 +290,8 @@ public class AlphaBetaAi extends AbstractAI {
 
             Player winner;
             if(newState.gameIsOver()){
-                winner = newState.getWinner();
-                if(winner!=null){
-                    if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){
-                        int possibleScore = +2147483646 - 2*leveOfRecursion;
-                        if(possibleScore>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=possibleScore;
-                            message="on gagne";
-                        }
-                    } else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){
-                        int possibleScore = -2147483646 + 2*leveOfRecursion;
-                        if(possibleScore>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=possibleScore;
-                            message="on perd";
-                        }
-                    }else if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){
-                        int possibleScore = - 2147483646 + 2*leveOfRecursion;
-                        if(possibleScore<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=possibleScore;
-                            message="on gagne";
-                        }
-                    }else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){
-                        int possibleScore = + 2147483646 - 2*leveOfRecursion;
-                        if(possibleScore<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=possibleScore;
-                            message="on perd";
-                        }
-                    }
-                }else{
-                    //System.out.println("Egalité !");
-                    if(this.getPlayerId()==state.getCurrentPlayerId()){
-                        if(0>foundAlpha){
-                            actionsToReturn=actions1;
-                            foundAlpha=0;
-
-                        }
-                    }else{
-                        if(0<foundBeta){
-                            actionsToReturn=actions1;
-                            foundBeta=0;
-                        }
-                    }
-                    message="egalité";
-                }
+                winner = newState.getWinner(); //TODO : prendre newState en paramètre ou state ?
+                checkGameResult(winner,newState,leveOfRecursion,foundAlpha,foundBeta,actionsToReturn,actions1,message);
             }
             else{
                 // on fait simuler le reste des actions
@@ -429,12 +349,15 @@ public class AlphaBetaAi extends AbstractAI {
 
     public void printActions(List<Action> list){
         System.out.println();
-        for (Action action: list
-        ) {
+        for (Action action: list){
             System.out.print(" | "+actionToString(action)+" | ");
         }System.out.println();
     }
 
+    /**
+     * @param state : état courant
+     * @return double : la distance entre les deux joueurs
+     */
     public double distanceBetweenPlayers(GameState state){
         Player p1 = state.getPlayers().get(0);
         int x1 = p1.getX();
@@ -474,7 +397,7 @@ public class AlphaBetaAi extends AbstractAI {
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
 
-    public double distanceBetweeCoordinates(double x1,double y1,double x2,double y2){
+    public double distanceBetweenCoordinates(double x1, double y1, double x2, double y2){
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
 
@@ -512,11 +435,9 @@ public class AlphaBetaAi extends AbstractAI {
 
         Cell currentCell=null;
 
-        for (Cell cell:cells
-             ) {
+        for (Cell cell:cells) {
             boolean containsBomb=false;
-            for (GameObject object :cell.getGameObjects()
-                 ) {
+            for (GameObject object :cell.getGameObjects()){
                 if(object instanceof Bomb){
                     containsBomb=true;
                 }
@@ -534,7 +455,7 @@ public class AlphaBetaAi extends AbstractAI {
             return walked;
         }else if(profondeur>limit){
             //return 2147483646;
-            return 2*distanceBetweeCoordinates(cell.getX(),cell.getY(),Ennemy.getX(),Ennemy.getY());
+            return 2* distanceBetweenCoordinates(cell.getX(),cell.getY(),Ennemy.getX(),Ennemy.getY());
         }
 
         double minFound=2147483646;
@@ -623,8 +544,7 @@ public class AlphaBetaAi extends AbstractAI {
 
     public boolean cellIsDestructible(Cell cell){
         boolean ret = true;
-        for (GameObject object:cell.getGameObjects()
-             ) {
+        for (GameObject object : cell.getGameObjects()){
                 if(!(object instanceof DestructibleWall)){
                     ret=false;
                 }
@@ -635,10 +555,8 @@ public class AlphaBetaAi extends AbstractAI {
     public int toBeDestroyedWalls(GameState state){
         int ret=0;
         ArrayList<Cell> cells = new ArrayList<Cell>();
-        for (Cell[] cell1:state.getMaze().getCells()
-             ) {
-            for (Cell cell:cell1
-                 ) {
+        for (Cell[] cell1 : state.getMaze().getCells()){
+            for (Cell cell:cell1){
                 cells.add(cell);
             }
         }
@@ -646,11 +564,9 @@ public class AlphaBetaAi extends AbstractAI {
         Cell currentCell=null;
         for (Cell cell : cells) {
             boolean containsBomb=false;
-            for (GameObject object:cell.getGameObjects()
-                 ) {
+            for (GameObject object:cell.getGameObjects()){
                 if(object instanceof Bomb){
-                    for (Directions dir:Directions.values()
-                    ) {
+                    for (Directions dir:Directions.values()){
                         currentCell=cell;
                         boolean continuer=true;
                         for (int l=0;l<initial_bomb_range && continuer;l++){
@@ -672,4 +588,64 @@ public class AlphaBetaAi extends AbstractAI {
         return ret;
     }
 
+    /**
+     * Examine la situation courante si la partie est terminée et met éventuellement à jour alpha ou beta avec une meilleure valeur
+     * @param winner : vainqueur de la partie
+     * @param state : état courant
+     * @param leveOfRecursion : niveau maximal de profondeur
+     * @param foundAlpha : meilleur alpha pour le moment
+     * @param foundBeta : meilleur beta pour le moment
+     * @param actionsToReturn : liste d'actions à renvoyer
+     * @param actions1 : liste d'actions associées à l'état
+     * @param message
+     */
+    public void checkGameResult(Player winner, GameState state, int leveOfRecursion, double foundAlpha, double foundBeta, List<Action> actionsToReturn, List<Action> actions1, String message){
+        if(winner!=null){
+            if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){ // on gagne et c'était notre tour de jouer
+                int possibleScore = +2147483646 - 2*leveOfRecursion;
+                if(possibleScore>foundAlpha){
+                    actionsToReturn=actions1;
+                    foundAlpha=possibleScore;
+                    message="on gagne";
+                }
+            } else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()==state.getCurrentPlayerId()){ // on perd et c'était notre tour de jouer
+                int possibleScore = -2147483646 + 2*leveOfRecursion;
+                if(possibleScore>foundAlpha){
+                    actionsToReturn=actions1;
+                    foundAlpha=possibleScore;
+                    message="on perd";
+                }
+            }else if(winner.getPlayerId() == this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){ // on gagne et c'était à l'adversaire de jouer
+                int possibleScore = +2147483646 - 2*leveOfRecursion;
+                if(possibleScore<foundBeta){
+                    actionsToReturn=actions1;
+                    foundBeta=possibleScore;
+                    message="on gagne";
+                }
+            }else if(winner.getPlayerId() != this.getPlayerId() && this.getPlayerId()!=state.getCurrentPlayerId()){ // on perd et c'était à l'adversaire de jouer
+                int possibleScore = - 2147483646 + 2*leveOfRecursion;
+                if(possibleScore<foundBeta){
+                    actionsToReturn=actions1;
+                    foundBeta=possibleScore;
+                    message="on perd";
+                }
+            }
+        }else{
+            //System.out.println("Egalité !");
+            if(this.getPlayerId()==state.getCurrentPlayerId()){
+                if(0>foundAlpha){
+                    actionsToReturn=actions1;
+                    foundAlpha=0;
+
+                }
+            }else{
+                if(0<foundBeta){
+                    actionsToReturn=actions1;
+                    foundBeta=0;
+                }
+            }
+            message="egalité";
+        }
+
+    }
 }

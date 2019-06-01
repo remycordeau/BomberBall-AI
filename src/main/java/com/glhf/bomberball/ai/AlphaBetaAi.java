@@ -353,12 +353,16 @@ public class AlphaBetaAi extends AbstractAI {
         AlphaBetaReturnObj ret;
         if(state.getCurrentPlayerId() == this.getPlayerId()) { // noeud max
             ret = new AlphaBetaReturnObj(foundAlpha,actionsToReturn,message);
-        }else {
+        }else { // noeud min
             ret = new AlphaBetaReturnObj(foundBeta, actionsToReturn,message);
         }
         return ret;
     }
 
+    /**
+     * @param a : une action
+     * @return String : retourne l'action passée en paramètre sous forme de chaîne de caractères
+     */
     public String actionToString(Action a){
         String ret="";
         switch (a){
@@ -382,6 +386,10 @@ public class AlphaBetaAi extends AbstractAI {
         return ret;
     }
 
+    /**
+     * Affiche la liste d'actions passée en paramètres dans le terminal
+     * @param list : une liste d'actions
+     */
     public void printActions(List<Action> list){
         System.out.println();
         for (Action action: list){
@@ -403,6 +411,10 @@ public class AlphaBetaAi extends AbstractAI {
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
 
+    /**
+     * @param player : un joueur
+     * @return double :  la distance parcourue par ce joueur depuis le début de la partie
+     */
     public double distanceFromBeginOfGamePos(Player player){
         double x1 = player.getX();
         double y1 = player.getY();
@@ -418,6 +430,10 @@ public class AlphaBetaAi extends AbstractAI {
     }
 
 
+    /**
+     * @param player : un joueur
+     * @return double : la distance parcourue par ce joueur depuis le début du tour
+     */
     public double distanceFromBeginOfTurnPos(Player player){
         double x1 = player.getX();
         double y1 = player.getY();
@@ -432,10 +448,21 @@ public class AlphaBetaAi extends AbstractAI {
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
 
+    /**
+     * @param x1 : abscisse point 1
+     * @param y1 : ordonnée point 1
+     * @param x2 : abscisse point 2
+     * @param y2 : ordonnée point 2
+     * @return double : la distance entre le point 1 et le point 2
+     */
     public double distanceBetweenCoordinates(double x1, double y1, double x2, double y2){
         return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
     }
 
+    /**
+     * @param player : un joueur
+     * @return double : la distance totale parcourue pendant la partie par ce joueur
+     */
     public double distanceCoveredThisGame(Player player){
         if(player.getPlayerId()==this.getPlayerId()){
             return distanceCoveredThisGameUs;
@@ -444,6 +471,12 @@ public class AlphaBetaAi extends AbstractAI {
         }
     }
 
+    /**
+     * @param myPlayer : le joueur contrôlé par notre intelligence artificielle
+     * @param Ennemy : le joueur ennemi
+     * @param state : l'état courant
+     * @return double : la
+     */
     public double walkableDistanceToPlayer(Player myPlayer,Player Ennemy,GameState state){
         // uses dummyState
         MyArrayList<Player> players = new MyArrayList<Player>();
@@ -460,10 +493,8 @@ public class AlphaBetaAi extends AbstractAI {
     public double walkableDistanceFromBombToPlayer(Player Ennemy,GameState state){
         double ret=0;
         ArrayList<Cell> cells = new ArrayList<Cell>();
-        for (Cell[] cell1:state.getMaze().getCells()
-        ) {
-            for (Cell cell:cell1
-            ) {
+        for (Cell[] cell1:state.getMaze().getCells()){
+            for (Cell cell:cell1){
                 cells.add(cell);
             }
         }
@@ -568,6 +599,10 @@ public class AlphaBetaAi extends AbstractAI {
         return minFound;
     }
 
+    /**
+     * Crée un nouvel état avec le maze de l'état passé en paramètre mais sans les joueurs
+     * @param state : un état
+     */
     public void initializeDummyState(GameState state){
         Maze maze = (Maze) state.getMaze().clone();
 
@@ -577,6 +612,10 @@ public class AlphaBetaAi extends AbstractAI {
         dummyState = new GameState(maze,0,0);
     }
 
+    /**
+     * @param cell : la cellule courante
+     * @return booléen : renvoie vrai si la cellule contient au moins un objet destructible
+     */
     public boolean cellIsDestructible(Cell cell){
         boolean ret = false;
         for (GameObject object : cell.getGameObjects()){
@@ -639,7 +678,7 @@ public class AlphaBetaAi extends AbstractAI {
      * @param foundBeta : meilleur beta pour le moment
      * @param actionsToReturn : liste d'actions à renvoyer
      * @param actions1 : liste d'actions associées à l'état
-     * @param message
+     * @return checkGameResultReturnObject : un objet contenant tous les paramètres qui ont été passés à cette méthode (pour prendre en compte leur éventuelle modification)
      */
     public checkGameResultReturnObject checkGameResult(Player winner, GameState state, int leveOfRecursion, double foundAlpha, double foundBeta, List<Action> actionsToReturn, List<Action> actions1, String message){
         checkGameResultReturnObject ret;

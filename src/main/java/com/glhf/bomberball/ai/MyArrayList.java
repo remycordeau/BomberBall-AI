@@ -29,8 +29,7 @@ public class MyArrayList<T> extends ArrayList<T> {
     }
 
     MyArrayList(List<T> array){
-        for (T elem:array
-             ) {
+        for (T elem:array){
             this.add(elem);
         }
     }

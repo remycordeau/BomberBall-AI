@@ -1,3 +1,6 @@
+/**
+ * Classe servant à stocker le retour de l'algorithme alpha-beta : le score et la liste des actions asscociées à celui-ci
+ */
 package com.glhf.bomberball.ai;
 
 import com.glhf.bomberball.utils.Action;

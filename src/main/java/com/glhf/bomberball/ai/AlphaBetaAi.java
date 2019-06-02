@@ -9,7 +9,6 @@ import com.glhf.bomberball.maze.Maze;
 import com.glhf.bomberball.maze.cell.Cell;
 import com.glhf.bomberball.utils.Action;
 import com.glhf.bomberball.utils.Directions;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class AlphaBetaAi extends AbstractAI {
 
     private GameState dummyState;
     private  boolean dummyStateInitialized=false;
-    private final int maxProfoncdeur = 10;
+    private final int maxProfondeur = 10;
 
     private final int verbosity = 3;
     private double finalscore=-1;
@@ -79,7 +78,7 @@ public class AlphaBetaAi extends AbstractAI {
 
 
     /**
-     * @param gameState
+     * @param gameState :  l'état courant de la partie
      * @return Action : l'action a effectuer par l'intelligence artificielle
      */
     @Override
@@ -191,9 +190,9 @@ public class AlphaBetaAi extends AbstractAI {
      * @param state, état sur lequel on applique notre algorithme
      * @param leveOfRecursion, niveau de profondeur d'exploration
      * @param maxRecursion, niveau maximal de profondeur d'exploration autorisé
-     * @param actions
+     * @param actions : liste d'actions
      * @param branch, branche de l'arbre que l'on explore
-     * @param onJoueVraiment
+     * @param onJoueVraiment : indique si c'est notre tour de jouer
      * @return AlphaBetaReturnObj contenant un score, une liste d'actions à effectuer
      */
     private AlphaBetaReturnObj alphaBeta(double alpha, double beta, GameState state, int leveOfRecursion, int maxRecursion, MyArrayList<Action> actions, String branch,boolean onJoueVraiment) {
@@ -233,7 +232,7 @@ public class AlphaBetaAi extends AbstractAI {
                 } else { //enemy turn
                     return new AlphaBetaReturnObj(foundBeta,actionsToReturn,message);
                 }
-            }else{ // sinon on retourne l'heuristique // TODO choisir quoi retourner (heuristique)
+            }else{ // sinon on retourne l'heuristique
                 AlphaBetaReturnObj ret;
                 double score=0;
 
@@ -258,7 +257,7 @@ public class AlphaBetaAi extends AbstractAI {
 
                     double distanceThisTurn = distanceFromBeginOfTurnPos(state.getCurrentPlayer());
 
-                    double walkableScore = maxProfoncdeur*2-walkableDistanceToPlayer(state.getPlayers().get(state.getCurrentPlayerId()),state.getPlayers().get((state.getCurrentPlayerId()+1)%2),dummyState);
+                    double walkableScore = maxProfondeur *2-walkableDistanceToPlayer(state.getPlayers().get(state.getCurrentPlayerId()),state.getPlayers().get((state.getCurrentPlayerId()+1)%2),dummyState);
 
                     double relativedistanceThisTurn = distanceThisTurn;
 
@@ -276,7 +275,7 @@ public class AlphaBetaAi extends AbstractAI {
 
 
                 }else{ // on suppose que l'adversaire joue de manière "constante"
-                    score=2; //à changer ?
+                    score=2;
                 }
                 /*
                 double distanceFromBeginGamePos = distanceFromBeginOfGamePos(state.getCurrentPlayer());
@@ -332,7 +331,6 @@ public class AlphaBetaAi extends AbstractAI {
                 // on fait simuler le reste des actions
                 AlphaBetaReturnObj returnObj = alphaBeta(foundAlpha, foundBeta,newState,leveOfRecursion+1,maxRecursion,actions1,branch+i,onJoueVraiment);
 
-                // TODO adapter alpha beta pour des noeuds max à la suite et des noeuds min à la suite.
                 if(state.getCurrentPlayerId() == this.getPlayerId()) { // noeud max
                     if(returnObj.score>foundAlpha){
                         //System.out.println("max node, updated alpha");
@@ -475,7 +473,7 @@ public class AlphaBetaAi extends AbstractAI {
      * @param myPlayer : le joueur contrôlé par notre intelligence artificielle
      * @param Ennemy : le joueur ennemi
      * @param state : l'état courant
-     * @return double : la
+     * @return double : la longeur du chemin du joueur courant à l'ennemi
      */
     public double walkableDistanceToPlayer(Player myPlayer,Player Ennemy,GameState state){
         // uses dummyState
@@ -486,11 +484,12 @@ public class AlphaBetaAi extends AbstractAI {
         state.setCurrentPlayerId(0);
         myPlayer=state.getCurrentPlayer();
 
-        double walked = walkableDistanceToPlayer(myPlayer.getCell(),Ennemy,state,0,0,Directions.DOWN,maxProfoncdeur,2147483646);
+        double walked = walkableDistanceToPlayer(myPlayer.getCell(),Ennemy,0,0,Directions.DOWN, maxProfondeur);
         return walked;
     }
 
     public double walkableDistanceFromBombToPlayer(Player Ennemy,GameState state){
+
         double ret=0;
         ArrayList<Cell> cells = new ArrayList<Cell>();
         for (Cell[] cell1:state.getMaze().getCells()){
@@ -498,8 +497,6 @@ public class AlphaBetaAi extends AbstractAI {
                 cells.add(cell);
             }
         }
-
-        Cell currentCell=null;
 
         for (Cell cell:cells) {
             boolean containsBomb=false;
@@ -509,17 +506,27 @@ public class AlphaBetaAi extends AbstractAI {
                 }
             }
             if(containsBomb){
-                ret+=walkableDistanceToPlayer(cell,Ennemy,state,0,0,Directions.DOWN,maxProfoncdeur,0);
+                ret+=walkableDistanceToPlayer(cell,Ennemy,0,0,Directions.DOWN, maxProfondeur);
             }
         }
         return ret;
     }
 
-    public double walkableDistanceToPlayer(Cell cell, Player Ennemy, GameState state, int walked,int profondeur, Directions forbiddenDirection,int limit,int defaut){
+    /**
+     * @param cell : la cellule courante
+     * @param Ennemy : le joueur adverse
+     * @param walked : la longueur du chemin courant
+     * @param profondeur : profondeur d'exploration courante
+     * @param forbiddenDirection : direction interdite dans l'exploration
+     * @param limit : profondeur d'exploration limite
+     * @return double : la longueur du chemin de la cellule courante à l'ennemi
+     */
+    public double walkableDistanceToPlayer(Cell cell, Player Ennemy, int walked,int profondeur, Directions forbiddenDirection,int limit){
+
+        //on a trouvé le chemin jusqu'à l'ennemi
         if(cell.getX()==Ennemy.getX() && cell.getY()==Ennemy.getY()){
-            //we found the path to the enemy
             return walked;
-        }else if(profondeur>limit){
+        }else if(profondeur>limit){ // on a atteint la profondeur d'exploration limite
             return 2147483646;
             //return 2* distanceBetweenCoordinates(cell.getX(),cell.getY(),Ennemy.getX(),Ennemy.getY());
         }
@@ -532,13 +539,13 @@ public class AlphaBetaAi extends AbstractAI {
         if(forbiddenDirection!=Directions.RIGHT || profondeur==0){
             if (adjacentCells.get(0) != null) {
                 if (adjacentCells.get(0).isWalkable()) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(0),Ennemy,state,walked+1,profondeur+1,Directions.RIGHT.opposite(),limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(0),Ennemy,walked+1,profondeur+1,Directions.RIGHT.opposite(),limit);
                     if(found<minFound){
                         minFound=found;
                     }
                 }
-                if (cellIsDestructible(adjacentCells.get(0))) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(0),Ennemy,state,walked+2,profondeur+1,Directions.RIGHT.opposite(),limit,defaut);
+                if (cellIsDestructible(adjacentCells.get(0))){ // on considère que détruire un objet destructible compte comme 2 actions -> walked + 2
+                    found = walkableDistanceToPlayer(adjacentCells.get(0),Ennemy,walked+2,profondeur+1,Directions.RIGHT.opposite(),limit);
                     if(found<minFound){
                         minFound=found;
                     }
@@ -549,13 +556,13 @@ public class AlphaBetaAi extends AbstractAI {
         if(forbiddenDirection!=Directions.LEFT || profondeur==0) {
             if (adjacentCells.get(2) != null) {
                 if (adjacentCells.get(2).isWalkable()) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(2), Ennemy, state, walked + 1, profondeur + 1, Directions.LEFT.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(2), Ennemy,walked + 1, profondeur + 1, Directions.LEFT.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
                 }
                 if (cellIsDestructible(adjacentCells.get(2))) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(2), Ennemy, state, walked + 2, profondeur + 1, Directions.LEFT.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(2), Ennemy,walked + 2, profondeur + 1, Directions.LEFT.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
@@ -566,13 +573,13 @@ public class AlphaBetaAi extends AbstractAI {
         if(forbiddenDirection!=Directions.UP || profondeur==0) {
             if (adjacentCells.get(1) != null) {
                 if (adjacentCells.get(1).isWalkable()) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(1), Ennemy, state, walked + 1, profondeur + 1, Directions.UP.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(1), Ennemy, walked + 1, profondeur + 1, Directions.UP.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
                 }
                 if (cellIsDestructible(adjacentCells.get(1))) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(1), Ennemy, state, walked + 2, profondeur + 1, Directions.UP.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(1), Ennemy,walked + 2, profondeur + 1, Directions.UP.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
@@ -583,13 +590,13 @@ public class AlphaBetaAi extends AbstractAI {
         if(forbiddenDirection!=Directions.DOWN || profondeur==0) {
             if (adjacentCells.get(3) != null) {
                 if (adjacentCells.get(3).isWalkable()) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(3), Ennemy, state, walked + 1, profondeur + 1, Directions.DOWN.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(3), Ennemy, walked + 1, profondeur + 1, Directions.DOWN.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
                 }
                 if (cellIsDestructible(adjacentCells.get(3))) {
-                    found = walkableDistanceToPlayer(adjacentCells.get(3), Ennemy, state, walked + 2, profondeur + 1, Directions.DOWN.opposite(), limit,defaut);
+                    found = walkableDistanceToPlayer(adjacentCells.get(3), Ennemy, walked + 2, profondeur + 1, Directions.DOWN.opposite(), limit);
                     if (found < minFound) {
                         minFound = found;
                     }
@@ -637,7 +644,6 @@ public class AlphaBetaAi extends AbstractAI {
         int retplus;
         Cell currentCell=null;
         for (Cell cell : cells) {
-            boolean containsBomb=false;
             for (GameObject object:cell.getGameObjects()){
                 if(object instanceof Bomb){
                     retplus=0;
@@ -655,9 +661,7 @@ public class AlphaBetaAi extends AbstractAI {
                             }
                         }
                     }
-                    //System.out.println("retplus = "+retplus);
                     if(retplus<=0){
-                        //System.out.println("bad retplus");
                         ret=ret-1000;
                     }else{
                         ret=ret+retplus;
@@ -665,7 +669,6 @@ public class AlphaBetaAi extends AbstractAI {
                 }
             }
         }
-        //System.out.println("goodBomb "+ret);
         return ret;
     }
 
@@ -712,8 +715,7 @@ public class AlphaBetaAi extends AbstractAI {
                     message="on perd";
                 }
             }
-        }else{
-            //System.out.println("Egalité !");
+        }else{ // égalité
             if(this.getPlayerId()==state.getCurrentPlayerId()){
                 if(0>foundAlpha){
                     actionsToReturn=actions1;
@@ -728,7 +730,7 @@ public class AlphaBetaAi extends AbstractAI {
             }
             message="egalité";
         }
-        ret = new checkGameResultReturnObject(new MyArrayList<>(actionsToReturn),foundAlpha,foundBeta,message);
+        ret = new checkGameResultReturnObject(new MyArrayList<>(actionsToReturn),foundAlpha,foundBeta,message); // enregistrement des paramètres et de leur modification
         return ret;
     }
 }

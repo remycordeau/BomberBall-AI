@@ -1,3 +1,6 @@
+/**
+ * Classe implémentant l'algorithme alpha-beta pour le jeu du morpion
+ */
 package Morpion.ia;
 
 import javax.swing.Action;
@@ -8,8 +11,6 @@ import static java.lang.Math.min;
 
 public class JoueurIAAlphaBeta extends JoueurIA {
 
-    //private static final int moinsInf = ;
-    //private static final int PlusInf = ;
 	private int Alpha;
 	private int Beta;
 	private List<Morpion.ia.Action> actionsPossibles;
@@ -18,10 +19,9 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 	private static final int MaxLevelOfRecursion = 10;
 
 	public JoueurIAAlphaBeta(String nom) {
+
 		super(nom);
-		//this.Alpha = -1; // initialiser alpha et beta à plus ou moins l'infini
 		this.Alpha = -2147483646;
-		//this.Beta = 1;
 		this.Beta = 2147483646;
 	}
 
@@ -35,13 +35,9 @@ public class JoueurIAAlphaBeta extends JoueurIA {
         try {
             for(Morpion.ia.Action action : actionsPossibles){
             	Etat state=etat.clone();
-
-            	//System.out.println("symboles identiques case 0,0 d'affilée "+state.getPlateau().nSymbolesConsecutifs2(0,0,1,0));
             	state.jouer(action);
             	state.setIdJoueurCourant(state.getIdJoueurCourant() +1);
                 currentAlpha=alphaBeta(this.Alpha,this.Beta,state,1);
-                //System.out.println("ca "+ currentAlpha);
-                //System.out.println("ba "+bestAlpha);
 				if(currentAlpha>bestAlpha){
 					bestAlpha=currentAlpha;
                 	this.setActionMemorisee(action);
@@ -54,16 +50,14 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 	}
 
 	public int alphaBeta(int alpha, int beta, Etat etat,int levelOfRecursion) {
-		Situation situation = etat.situationCourante();
-		//System.out.println("situation courante : " + situation.toString());
+		Situation situation = etat.situationCourante(); //examen de la situation courante
+
 		if(situation instanceof Victoire){
 			if(((Victoire) situation).getVainqueur().getID() == this.getID()){
 				System.out.println("victoire de l'ia");
-				//return 1;
 				return 2147483646-levelOfRecursion;
 			} else{
 				System.out.println("victoire du joueur");
-				//return -1;
 				return -2147483647+levelOfRecursion;
 			}
 		} else if(situation instanceof Egalite){
@@ -72,8 +66,7 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 		}else if(situation instanceof EnCours){
 			List<Morpion.ia.Action> actions = etat.actionsPossibles();
 			if(etat.getIdJoueurCourant() == this.getID()){ //noeud max
-				//TODO if reached max profondeur to look
-				if(levelOfRecursion>=MaxLevelOfRecursion){
+				if(levelOfRecursion>=MaxLevelOfRecursion){ //si l'on a dépassé le niveau maximal de récursion, on renvoie l'heuristique
 					int heuristique = etat.getPlateau().heuristique(Symbole.values()[etat.getIdJoueurCourant()]);
 					etat.setIdJoueurCourant(etat.getIdJoueurCourant()+1);
 					int newid = etat.getIdJoueurCourant();
@@ -89,7 +82,6 @@ public class JoueurIAAlphaBeta extends JoueurIA {
 				}
 				return alpha;
 			} else { //noeud min
-				//TODO if reached max profondeur to look
 				if(levelOfRecursion>=MaxLevelOfRecursion){
 					int heuristique = -etat.getPlateau().heuristique(Symbole.values()[etat.getIdJoueurCourant()]);
 					etat.setIdJoueurCourant(etat.getIdJoueurCourant()+1);

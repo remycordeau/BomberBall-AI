@@ -192,6 +192,14 @@ public class Plateau {
 		return Symbole.VIDE;
 	}
 
+	/**
+	 * @param x : Point de départ en abscisse
+	 * @param y : Point de départ en ordonnées
+	 * @param directionX  : direction en x
+	 * @param directionY : direction en y
+	 * @param symbole : le symmbole considéré
+	 * @return entier : le nombre de symboles du type passé en paramètre qui sont alignés selon les directions x et y et le point de départ
+	 */
 	public int nSymbolesConsecutifs2(int x, int y, int directionX, int directionY, Symbole symbole) {
 
 		if(getCase(x, y) == symbole){
@@ -212,11 +220,15 @@ public class Plateau {
 		}
 	}
 
+	/**
+	 * @param symbole : un symbole
+	 * @return entier : le nombre de symboles alignés selon les lignes, les colonnes et les diagonales
+	 */
 	public int heuristique(Symbole symbole){
 		int ret=0;
 		int nbcons;
-		int y=0;
-		int x=0;
+		int y;
+		int x;
 
 		// Lignes
 		x=0;
